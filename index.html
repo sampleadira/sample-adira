@@ -7,7 +7,7 @@
     <style>
         /* Gaya dasar halaman */
         body {
-            background-color: #0d1117; /* Warna gelap background */
+            background-color: #0d1117; 
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
@@ -77,12 +77,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px; /* Jarak antara logo dan teks */
+            gap: 15px; 
             font-size: 16px;
             transition: background-color 0.2s;
             width: 100%;
             box-sizing: border-box;
             margin-bottom: 25px;
+            cursor: pointer;
         }
         .btn-google-baru:hover {
             background-color: #30363d;
@@ -138,6 +139,9 @@
             line-height: 1.5;
         }
     </style>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
@@ -153,22 +157,77 @@
             <p class="sub-text">Masuk menggunakan akun Google yang telah diotorisasi.</p>
         </div>
         
-        <!-- TOMBOL LOGIN GOOGLE DENGAN LOGO TRANSPARAN -->
-        <a href="#" class="btn-google-baru">
+        <button id="loginBtn" class="btn-google-baru">
             <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" class="google-logo">
             <span>Masuk dengan Google</span>
-        </a>
+        </button>
         
         <div class="separator">
             <span class="text-separator">atau</span>
         </div>
 
-        <!-- KOTAK INFO DI BAWAH -->
         <div class="warning-box-baru">
             <strong class="hijau-baru">Akses Terbatas Tim Internal</strong>
             <p class="info-text">Portal ini dikhususkan untuk penggunaan internal tim inti. Pastikan akun Anda sudah didaftarkan oleh Admin sebelum masuk.</p>
         </div>
     </div>
+
+    <script>
+        // ==========================================
+        // 1. MASUKKAN KODE FIREBASE CONFIG MU DI SINI
+        // ==========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCq2b73RQ21CgNWRiIeVvveoPWunMZGjno",
+  authDomain: "sample-adira.firebaseapp.com",
+  projectId: "sample-adira",
+  storageBucket: "sample-adira.firebasestorage.app",
+  messagingSenderId: "324122479981",
+  appId: "1:324122479981:web:5834750c9569889e9c5e64",
+  measurementId: "G-QVLJZXMW3Q"
+};
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // ==========================================
+        // 2. DAFTAR EMAIL YANG BOLEH MASUK (WHITELIST)
+        // ==========================================
+        const daftarEmailDiterima = [
+            "sampleadira@gmail.com",
+            "arlitarhma.w@gmail.com",
+            //"emailrekan2@gmail.com",
+            //"emailrekan3@gmail.com"
+            // Tambahkan email lainnya di sini dipisahkan koma
+        ];
+
+        // Logika Tombol Login
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    const user = result.user;
+                    
+                    // Cek apakah email terdaftar di whitelist
+                    if (daftarEmailDiterima.includes(user.email)) {
+                        alert("Login Sukses! Selamat Datang, " + user.displayName);
+                        
+                        // TEMPAT REDIRECT: Jika sukses, mau diarahkan ke mana?
+                        // Contoh jika ingin membuka link Google Sheets atau Looker Studio otomatis:
+                        // window.location.href = "https://link-database-atau-appsheet-anda.com";
+                        
+                    } else {
+                        // Jika email tidak terdaftar, paksa logout dan beri peringatan
+                        alert("Akses Ditolak! Akun Google (" + user.email + ") belum didaftarkan oleh Admin.");
+                        firebase.auth().signOut();
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error Login: ", error);
+                    alert("Terjadi kesalahan sistem saat mencoba login.");
+                });
+        });
+    </script>
 
 </body>
 </html>
