@@ -5,20 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Pusat Sample Adira</title>
     <style>
-        /* Gaya dasar halaman */
+        /* Gaya dasar seluruh halaman */
         body {
-            background-color: #0d1117; 
+            background-color: #0d1117; /* Warna gelap background utama */
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: space-between;
-            padding: 10%;
-            height: 100vh;
-            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
 
-        /* Bagian kiri (Teks judul) */
+        /* --- STYLES UNTUK HALAMAN LOGIN --- */
+        .login-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10%;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
         .kiri {
             max-width: 50%;
         }
@@ -26,8 +32,6 @@
             font-size: 3em;
             margin-bottom: 10px;
         }
-
-        /* Bagian kanan (Kotak login) */
         .kanan {
             background-color: #161b22;
             padding: 40px;
@@ -35,13 +39,9 @@
             border: 1px solid #30363d;
             width: 350px;
         }
-
-        /* Warna hijau aksen */
         .hijau {
             color: #4ade80; 
         }
-        
-        /* Gaya elemen badge ⚡ AKSES PORTAL */
         .badge {
             background-color: #1a3321;
             color: #4ade80;
@@ -53,8 +53,6 @@
             margin-bottom: 15px;
             letter-spacing: 1px;
         }
-
-        /* Gaya header bagian kanan */
         .header-kanan {
             margin-bottom: 30px;
         }
@@ -65,8 +63,6 @@
             margin-bottom: 0;
             line-height: 1.5;
         }
-
-        /* Gaya tombol login Google dengan logo transparan */
         .btn-google-baru {
             background-color: #161b22;
             color: #ffffff;
@@ -93,8 +89,6 @@
             height: 20px;
             display: block;
         }
-
-        /* Gaya separator "atau" */
         .separator {
             position: relative;
             text-align: center;
@@ -118,8 +112,6 @@
             padding: 0 15px;
             font-size: 12px;
         }
-
-        /* Gaya kotak info akses terbatas */
         .warning-box-baru {
             background-color: transparent;
             border: 1px solid #2ea043;
@@ -138,6 +130,76 @@
             margin: 0;
             line-height: 1.5;
         }
+
+        /* --- STYLES UNTUK DASHBOARD MENU UTAMA --- */
+        .dashboard-container {
+            padding: 5% 10%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .btn-logout {
+            background-color: transparent;
+            color: #f85149; /* Warna merah standard GitHub */
+            border: 1px solid #f85149;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .btn-logout:hover {
+            background-color: #f85149;
+            color: #ffffff;
+        }
+        
+        /* Grid Menu Utama */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .menu-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            padding: 30px;
+            text-decoration: none;
+            color: #ffffff;
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+        .menu-card:hover {
+            transform: translateY(-5px);
+            border-color: #4ade80; /* Highlight hijau saat hover */
+        }
+        .menu-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        .menu-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.5em;
+        }
+        .menu-card p {
+            color: #8b949e;
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -145,87 +207,126 @@
 </head>
 <body>
 
-    <div class="kiri">
-        <h3 class="hijau">A | ADIRA SAMPLE CENTER</h3>
-        <h1>Sistem Pusat <br><span class="hijau">Sample</span><br>Adira</h1>
-        <p>Database terpadu untuk semua dokumen sample.</p>
+    <div id="loginPage" class="login-container" style="display: none;">
+        <div class="kiri">
+            <h3 class="hijau">A | ADIRA SAMPLE CENTER</h3>
+            <h1>Sistem Pusat <br><span class="hijau">Sample</span><br>Adira</h1>
+            <p>Database terpadu untuk melacak status WIP harian tim, mulai dari persiapan material, proses produksi, hingga approval akhir secara real-time.</p>
+        </div>
+
+        <div class="kanan">
+            <div class="header-kanan">
+                <div class="badge">⚡ AKSES PORTAL</div>
+                <p class="sub-text">Masuk menggunakan akun Google yang telah diotorisasi.</p>
+            </div>
+            
+            <button id="loginBtn" class="btn-google-baru">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" class="google-logo">
+                <span>Masuk dengan Google</span>
+            </button>
+            
+            <div class="separator">
+                <span class="text-separator">atau</span>
+            </div>
+
+            <div class="warning-box-baru">
+                <strong class="hijau-baru">Akses Terbatas Tim Internal</strong>
+                <p class="info-text">Portal ini dikhususkan untuk penggunaan internal tim inti. Pastikan akun Anda sudah didaftarkan oleh Admin sebelum masuk.</p>
+            </div>
+        </div>
     </div>
 
-    <div class="kanan">
-        <div class="header-kanan">
-            <div class="badge">⚡ AKSES PORTAL</div>
-            <p class="sub-text">Masuk menggunakan akun Google yang telah diotorisasi.</p>
-        </div>
-        
-        <button id="loginBtn" class="btn-google-baru">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" class="google-logo">
-            <span>Masuk dengan Google</span>
-        </button>
-        
-        <div class="separator">
-            <span class="text-separator">atau</span>
+    <div id="dashboardPage" class="dashboard-container" style="display: none;">
+        <div class="dashboard-header">
+            <div>
+                <h3 class="hijau" style="margin: 0; font-size: 14px; letter-spacing: 1px;">A | ADIRA SAMPLE CENTER</h3>
+                <h2 style="margin: 5px 0 0 0;">Menu Utama Sistem</h2>
+            </div>
+            <div class="user-info">
+                <span id="userDisplayName" style="color: #8b949e; font-size: 14px;">Mencari akun...</span>
+                <button id="logoutBtn" class="btn-logout">Keluar</button>
+            </div>
         </div>
 
-        <div class="warning-box-baru">
-            <strong class="hijau-baru">Akses Terbatas Tim Internal</strong>
-            <p class="info-text">Portal ini dikhususkan untuk penggunaan internal tim inti. Pastikan akun Anda sudah didaftarkan oleh Admin sebelum masuk.</p>
+        <div class="menu-grid">
+            <a href="#" class="menu-card">
+                <span class="menu-icon">📦</span>
+                <h3>Glove Keeping</h3>
+                <p>Manajemen penyimpanan, kontrol stok inventaris, dan penataan aset produksi glove secara terpusat.</p>
+            </a>
+
+            <a href="#" class="menu-card">
+                <span class="menu-icon">📝</span>
+                <h3>Peminjaman Glove</h3>
+                <p>Formulir digital pencatatan keluar-masuk barang, log operator, dan pemantauan riwayat pinjaman aktif harian.</p>
+            </a>
         </div>
     </div>
 
     <script>
-        // ==========================================
-        // 1. MASUKKAN KODE FIREBASE CONFIG MU DI SINI
-        // ==========================================
-const firebaseConfig = {
-  apiKey: "AIzaSyCq2b73RQ21CgNWRiIeVvveoPWunMZGjno",
-  authDomain: "sample-adira.firebaseapp.com",
-  projectId: "sample-adira",
-  storageBucket: "sample-adira.firebasestorage.app",
-  messagingSenderId: "324122479981",
-  appId: "1:324122479981:web:5834750c9569889e9c5e64",
-  measurementId: "G-QVLJZXMW3Q"
-};
+        // ===================================================
+        // 1. MASUKKAN KODE FIREBASE CONFIG ANDA DI SINI
+        // ===================================================
+        const firebaseConfig = {
+            apiKey: "SALIN_API_KEY_ANDA",
+            authDomain: "SALIN_AUTH_DOMAIN_ANDA",
+            projectId: "SALIN_PROJECT_ID_ANDA",
+            storageBucket: "SALIN_STORAGE_BUCKET_ANDA",
+            messagingSenderId: "SALIN_MESSAGING_SENDER_ANDA",
+            appId: "SALIN_APP_ID_ANDA"
+        };
 
         // Inisialisasi Firebase
         firebase.initializeApp(firebaseConfig);
 
-        // ==========================================
-        // 2. DAFTAR EMAIL YANG BOLEH MASUK (WHITELIST)
-        // ==========================================
+        // ===================================================
+        // 2. DAFTAR EMAIL YANG DIOTORISASI (WHITELIST)
+        // ===================================================
         const daftarEmailDiterima = [
-            "sampleadira@gmail.com",
-            "arlitarahma.w@gmail.com",
-            //"emailrekan2@gmail.com",
-            //"emailrekan3@gmail.com"
-            // Tambahkan email lainnya di sini dipisahkan koma
+            "emailanda@gmail.com",
+            "emailrekan1@gmail.com",
+            "emailrekan2@gmail.com",
+            "emailrekan3@gmail.com"
         ];
 
-        // Logika Tombol Login
+        const loginPage = document.getElementById('loginPage');
+        const dashboardPage = document.getElementById('dashboardPage');
+        const userDisplayName = document.getElementById('userDisplayName');
+
+        // Monitor Status Autentikasi secara Real-Time (Auto-Login System)
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // Jika user terdeteksi login, cek ke dalam whitelist email
+                if (daftarEmailDiterima.includes(user.email)) {
+                    // Sembunyikan halaman login, tampilkan halaman dashboard menu
+                    loginPage.style.display = 'none';
+                    dashboardPage.style.display = 'block';
+                    userDisplayName.innerText = "Halo, " + user.displayName;
+                } else {
+                    alert("Akses Ditolak! Email Anda (" + user.email + ") belum terdaftar di whitelist.");
+                    firebase.auth().signOut();
+                }
+            } else {
+                // Jika belum login atau habis logout, kembalikan ke halaman login
+                dashboardPage.style.display = 'none';
+                loginPage.style.display = 'flex';
+            }
+        });
+
+        // Event Trigger Tombol Login
         document.getElementById('loginBtn').addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
-            
-            firebase.auth().signInWithPopup(provider)
-                .then((result) => {
-                    const user = result.user;
-                    
-                    // Cek apakah email terdaftar di whitelist
-                    if (daftarEmailDiterima.includes(user.email)) {
-                        alert("Login Sukses! Selamat Datang, " + user.displayName);
-                        
-                        // TEMPAT REDIRECT: Jika sukses, mau diarahkan ke mana?
-                        // Contoh jika ingin membuka link Google Sheets atau Looker Studio otomatis:
-                        // window.location.href = "https://link-database-atau-appsheet-anda.com";
-                        
-                    } else {
-                        // Jika email tidak terdaftar, paksa logout dan beri peringatan
-                        alert("Akses Ditolak! Akun Google (" + user.email + ") belum didaftarkan oleh Admin.");
-                        firebase.auth().signOut();
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error Login: ", error);
-                    alert("Terjadi kesalahan sistem saat mencoba login.");
-                });
+            firebase.auth().signInWithPopup(provider).catch((error) => {
+                console.error("Error Login: ", error);
+                alert("Gagal memproses login Google.");
+            });
+        });
+
+        // Event Trigger Tombol Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            firebase.auth().signOut().then(() => {
+                alert("Anda telah keluar dari sistem.");
+            });
         });
     </script>
 
