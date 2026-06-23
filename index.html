@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dev PM System</title>
+    <title>Sistem Pusat Sample Adira</title>
     <style>
+        /* Gaya dasar halaman */
         body {
-            background-color: #0d1117; /* Warna gelap GitHub */
+            background-color: #0d1117; /* Warna gelap background */
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
@@ -14,10 +15,22 @@
             padding: 10%;
             height: 100vh;
             box-sizing: border-box;
+            margin: 0;
         }
+
+        /* Bagian kiri (Teks judul) */
         .kiri {
             max-width: 50%;
         }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        h2 {
+            margin-top: 0;
+        }
+
+        /* Bagian kanan (Kotak login) */
         .kanan {
             background-color: #161b22;
             padding: 40px;
@@ -25,63 +38,139 @@
             border: 1px solid #30363d;
             width: 350px;
         }
-        h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
+
+        /* Warna hijau aksen */
         .hijau {
-            color: #2ea043; /* Aksen hijau */
+            color: #4ade80; 
         }
-        .btn-google {
-            background-color: transparent;
-            color: white;
-            border: 1px solid #8b949e;
-            padding: 10px 20px;
-            width: 100%;
-            border-radius: 5px;
-            cursor: pointer;
+        
+        /* Gaya elemen badge ⚡ AKSES PORTAL */
+        .badge {
+            background-color: #1a3321;
+            color: #4ade80;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        /* Gaya header bagian kanan */
+        .header-kanan {
+            margin-bottom: 30px;
+        }
+        .sub-text {
+            color: #8b949e;
+            font-size: 14px;
+            margin-top: 5px;
+            margin-bottom: 0;
+        }
+
+        /* Gaya tombol login Google dengan logo */
+        .btn-google-baru {
+            background-color: #161b22;
+            color: #ffffff;
+            border: 1px solid #30363d;
+            padding: 15px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px; /* Jarak antara logo dan teks */
             font-size: 16px;
-            margin-top: 20px;
+            transition: background-color 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 25px;
         }
-        .btn-google:hover {
+        .btn-google-baru:hover {
             background-color: #30363d;
         }
-        .warning-box {
-            background-color: rgba(46, 160, 67, 0.1);
+        .google-logo {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Gaya separator "atau" */
+        .separator {
+            position: relative;
+            text-align: center;
+            margin: 25px 0;
+        }
+        .separator::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: #30363d;
+            z-index: 1;
+        }
+        .text-separator {
+            position: relative;
+            z-index: 2;
+            background-color: #161b22;
+            color: #8b949e;
+            padding: 0 15px;
+            font-size: 12px;
+        }
+
+        /* Gaya kotak info akses terbatas */
+        .warning-box-baru {
+            background-color: transparent;
             border: 1px solid #2ea043;
             padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
+            border-radius: 8px;
+            margin-top: 25px;
             font-size: 14px;
+        }
+        .hijau-baru {
+            color: #4ade80;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .info-text {
+            color: #8b949e;
+            margin: 0;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
 
     <div class="kiri">
-        <div class="login-chip">⚡ Akses Portal</div>
-    <h2 class="login-title">Masuk ke Sistem</h2>
-    <p class="login-sub">Gunakan akun Google yang telah didaftarkan oleh Admin.</p>
-
-    <button class="btn-google" id="btnLogin">
-      <svg width="20" height="20" viewBox="0 0 24 24">
-        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-      </svg>
-      Masuk dengan Google
-    </button>
-
-    <div class="divider">atau</div>
-
-    <div class="access-note">
-      <strong>Akses Terbatas</strong><br>
-      Hanya akun yang telah didaftarkan oleh Admin yang dapat menggunakan sistem ini. Hubungi Admin jika belum terdaftar.
+        <h3 class="hijau">A | ADIRA SAMPLE CENTER</h3>
+        <h1>Sistem Pusat <br><span class="hijau">Sample</span><br>Adira</h1>
+        <p>Database terpadu untuk melacak status WIP harian tim, mulai dari persiapan material, proses produksi, hingga approval akhir secara real-time.</p>
     </div>
-    <div class="error-box" id="errorBox"></div>
-  </div>
-</div>
+
+    <div class="kanan">
+        <div class="header-kanan">
+            <div class="badge">⚡ AKSES PORTAL</div>
+            <h2>Akses Dasbor</h2>
+            <p class="sub-text">Masuk menggunakan akun Google yang telah diotorisasi.</p>
+        </div>
+        
+        <!-- TOMBOL LOGIN GOOGLE BARU -->
+        <a href="#" class="btn-google-baru">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" class="google-logo">
+            <span>Masuk dengan Google</span>
+        </a>
+        
+        <div class="separator">
+            <span class="text-separator">atau</span>
+        </div>
+
+        <!-- KOTAK INFO DI BAWAH -->
+        <div class="warning-box-baru">
+            <strong class="hijau-baru">Akses Terbatas Tim Internal</strong>
+            <p class="info-text">Portal ini dikhususkan untuk penggunaan internal tim inti. Pastikan akun Anda sudah didaftarkan oleh Admin sebelum masuk.</p>
+        </div>
+    </div>
 
 </body>
 </html>
