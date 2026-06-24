@@ -305,13 +305,11 @@
         }
     </style>
 
-    <!-- SDK FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
-    <!-- ================= SECTION 1: HALAMAN LOGIN ================= -->
     <div id="loginPage" class="login-container" style="display: none;">
         <div class="kiri">
             <h3 class="hijau">A | ADIRA SAMPLE CENTER</h3>
@@ -336,7 +334,6 @@
     </div>
 
 
-    <!-- ================= SECTION 2: MENU UTAMA (DASHBOARD) ================= -->
     <div id="dashboardPage" class="container-app" style="display: none;">
         <div class="app-header">
             <div>
@@ -364,7 +361,6 @@
     </div>
 
 
-    <!-- ================= SECTION 3: SUBSYSTEM GLOVE KEEPING ================= -->
     <div id="gloveKeepingPage" class="container-app" style="display: none;">
         <div class="app-header">
             <div>
@@ -374,7 +370,6 @@
             <button id="backToDash" class="btn-sekunder">← Kembali ke Menu</button>
         </div>
 
-        <!-- KOTAK RESUME DASHBOARD DENGAN TEKS YANG DIPERBARUI -->
         <div class="resume-grid">
             <div class="resume-card" style="border-left: 4px solid #58a6ff;">
                 <span class="title">Keeping Glove</span>
@@ -395,7 +390,6 @@
             <button id="openAddModal" class="btn-utama">+ Add Register Baru</button>
         </div>
 
-        <!-- TABEL DATABASE UTAMA -->
         <div class="table-responsive">
             <table>
                 <thead>
@@ -423,14 +417,12 @@
                     </tr>
                 </thead>
                 <tbody id="tableBodyGlove">
-                    <!-- Baris data otomatis via JS -->
-                </tbody>
+                    </tbody>
             </table>
         </div>
     </div>
 
 
-    <!-- ================= SECTION 4: FORM MODAL POP-UP (+ADD / EDIT) ================= -->
     <div id="addModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -444,7 +436,7 @@
                 <div class="form-grid">
                     
                     <div class="form-group full-width">
-                        <label for="f_rfid">ID RFID <span class="hijau">(Scan RFID Tag Glove Sekarang)</span></label>
+                        <label for="f_rfid">ID RFID <span class="hijau">(Scan / Edit RFID Tag Glove)</span></label>
                         <input type="text" id="f_rfid" class="rfid-field" placeholder="Tempelkan/Scan tag ke reader..." required autocomplete="off">
                     </div>
 
@@ -461,8 +453,7 @@
                         <label for="f_buyer">BUYER <span class="abu">(Ketik nama baru untuk menambah opsi)</span></label>
                         <input type="text" id="f_buyer" list="list_buyer" placeholder="Contoh: Callaway" required>
                         <datalist id="list_buyer">
-                            <!-- Opsi dinamis -->
-                        </datalist>
+                            </datalist>
                     </div>
 
                     <div class="form-group">
@@ -508,8 +499,7 @@
                         <label for="f_size">SIZE SAMPLE <span class="abu">(Ketik untuk tambah baru)</span></label>
                         <input type="text" id="f_size" list="list_size" placeholder="Contoh: M / 9" required>
                         <datalist id="list_size">
-                            <!-- Opsi dinamis -->
-                        </datalist>
+                            </datalist>
                     </div>
 
                     <div class="form-group">
@@ -570,7 +560,7 @@ const firebaseConfig = {
                     }
                     userDisplayName.innerText = "Halo, " + user.displayName;
                     renderTabelGlove();
-                    updateSmartDatalist();
+                    updateSmartDatalist(); // Inisialisasi awal datalist agar pilihan langsung keluar
                 } else {
                     alert("Akses Ditolak! Email belum terdaftar.");
                     firebase.auth().signOut();
@@ -586,6 +576,7 @@ const firebaseConfig = {
             dashboardPage.style.display = 'none';
             gloveKeepingPage.style.display = 'block';
             renderTabelGlove();
+            updateSmartDatalist(); // Memastikan list buyer ter-update saat masuk ke submenu
         });
         document.getElementById('backToDash').addEventListener('click', () => {
             gloveKeepingPage.style.display = 'none';
@@ -619,7 +610,9 @@ const firebaseConfig = {
             editIndexInput.value = "-1";
             modalTitle.innerText = "+ Register Item Glove Keeping Baru";
             btnSimpan.innerText = "Simpan Register";
-            document.getElementById('f_rfid').disabled = false;
+            
+            // PERBAIKAN 1: Input RFID tetap aktif (bisa discan/ketik ulang)
+            document.getElementById('f_rfid').disabled = false; 
             addModal.style.display = 'flex';
             setTimeout(() => document.getElementById('f_rfid').focus(), 100);
         });
@@ -628,6 +621,7 @@ const firebaseConfig = {
         document.getElementById('closeModal').addEventListener('click', tutupModal);
         document.getElementById('btnBatal').addEventListener('click', tutupModal);
 
+        // PERBAIKAN 3: Sinkronisasi dan render data list buyer & size agar terbaca di form
         function updateSmartDatalist() {
             const dlBuyer = document.getElementById('list_buyer');
             const dlSize = document.getElementById('list_size');
@@ -639,22 +633,39 @@ const firebaseConfig = {
         formGlove.addEventListener('submit', (e) => {
             e.preventDefault();
 
+            const rfidValue = document.getElementById('f_rfid').value.trim();
             const buyerValue = document.getElementById('f_buyer').value.trim();
             const sizeValue = document.getElementById('f_size').value.trim();
             const idx = parseInt(editIndexInput.value);
 
-            if(!opsiBuyer.includes(buyerValue)) {
+            // PERBAIKAN 2: Validasi Duplikasi RFID (1 RFID = 1 Glove)
+            const isDuplicate = databaseGlove.some((item, index) => {
+                // Jika "Add" baru (idx === -1), cek semua baris. 
+                // Jika "Edit", abaikan baris yang sedang diedit itu sendiri.
+                return item.rfid === rfidValue && index !== idx;
+            });
+
+            if (isDuplicate) {
+                alert(`⚠️ Gagal Simpan! RFID "${rfidValue}" sudah terdaftar pada glove lain di database.`);
+                document.getElementById('f_rfid').focus();
+                document.getElementById('f_rfid').select();
+                return; // Batalkan proses simpan
+            }
+
+            // Simpan otomatis ke daftar autocomplete jika ada entri teks baru
+            if(buyerValue && !opsiBuyer.includes(buyerValue)) {
                 opsiBuyer.push(buyerValue);
                 localStorage.setItem('adira_opsi_buyer', JSON.stringify(opsiBuyer));
             }
-            if(!opsiSize.includes(sizeValue)) {
+            if(sizeValue && !opsiSize.includes(sizeValue)) {
                 opsiSize.push(sizeValue);
                 localStorage.setItem('adira_opsi_size', JSON.stringify(opsiSize));
             }
 
             if (idx === -1) {
+                // Proses Add Data Baru
                 const itemBaru = {
-                    rfid: document.getElementById('f_rfid').value.trim(),
+                    rfid: rfidValue,
                     type: document.getElementById('f_type').value,
                     buyer: buyerValue,
                     posisi: document.getElementById('f_posisi').value.trim(),
@@ -677,6 +688,8 @@ const firebaseConfig = {
                 databaseGlove.unshift(itemBaru);
                 alert("Aset Glove berhasil didaftarkan!");
             } else {
+                // Proses Edit Data Lama
+                databaseGlove[idx].rfid = rfidValue; // Simpan nilai RFID baru hasil scan ulang
                 databaseGlove[idx].type = document.getElementById('f_type').value;
                 databaseGlove[idx].buyer = buyerValue;
                 databaseGlove[idx].posisi = document.getElementById('f_posisi').value.trim();
@@ -705,8 +718,10 @@ const firebaseConfig = {
             modalTitle.innerText = "📝 Edit Data Glove Keeping";
             btnSimpan.innerText = "Simpan Perubahan";
 
+            // PERBAIKAN 1: Memastikan kolom input RFID tidak dinonaktifkan (bisa dipindah fokus/scan ulang)
             document.getElementById('f_rfid').value = item.rfid;
-            document.getElementById('f_rfid').disabled = true; 
+            document.getElementById('f_rfid').disabled = false; 
+            
             document.getElementById('f_type').value = item.type;
             document.getElementById('f_buyer').value = item.buyer;
             document.getElementById('f_posisi').value = item.posisi;
@@ -753,7 +768,6 @@ const firebaseConfig = {
                 }
             });
 
-            // --- FORMAT TEKS RESUME TERBARU (Sesuai Permintaan) ---
             document.getElementById('resKeeping').innerHTML = `${pinjamKeeping} dipinjam / ${totalKeeping} total glove`;
             document.getElementById('resApproved').innerHTML = `${pinjamApproved} dipinjam / ${totalApproved} total glove`;
             document.getElementById('resDuplikat').innerHTML = `${pinjamDuplikat} dipinjam / ${totalDuplikat} total glove`;
