@@ -768,12 +768,23 @@
                     userDisplayName.innerText = "Halo, " + user.displayName;
 
                     // 1. Sinkronisasi Data Transaksi Glove
-                    dbRef.on('value', (snapshot) => {
-                        const dataCloud = snapshot.val();
-                        databaseGlove = dataCloud ? Object.values(dataCloud) : [];
-                        renderTabelGlove();
-                        renderTabelPinjam();
-                    });
+// 1. Sinkronisasi Data Transaksi Glove (Menggunakan Key Unik Firebase)
+dbRef.on('value', (snapshot) => {
+    const dataCloud = snapshot.val();
+    const listGloveTemp = [];
+    if (dataCloud) {
+        Object.keys(dataCloud).forEach((key) => {
+            listGloveTemp.push({
+                firebaseKey: key, // Simpan key unik dari firebase di sini
+                ...dataCloud[key]
+            });
+        });
+    }
+    // Jika ingin data terbaru berada di atas (seperti efek unshift lama)
+    databaseGlove = listGloveTemp.reverse(); 
+    renderTabelGlove();
+    renderTabelPinjam();
+});
 
                     // 2. Sinkronisasi Data Kantong RFID Karyawan Online Realtime
                     dbKaryawanRef.on('value', (snapshot) => {
@@ -853,51 +864,41 @@
                 return;
             }
 
-            if (idx === -1) {
-                databaseGlove.unshift({
-                    rfid: rfidValue,
-                    type: document.getElementById('f_type').value,
-                    buyer: document.getElementById('f_buyer').value.trim(),
-                    posisi: document.getElementById('f_posisi').value.trim(),
-                    qa: document.getElementById('f_qa').value.trim() || '-',
-                    sampleNum: document.getElementById('f_sample_num').value.trim(),
-                    tahun: document.getElementById('f_tahun').value,
-                    style: document.getElementById('f_style').value.trim(),
-                    color: document.getElementById('f_color').value.trim(),
-                    qty: document.getElementById('f_qty').value,
-                    uom: document.getElementById('f_uom').value,
-                    size: document.getElementById('f_size').value.trim(),
-                    appDate: document.getElementById('f_app_date').value || '-',
-                    remark: document.getElementById('f_remark').value.trim() || '-',
-                    isDipinjam: "TIDAK",
-                    peminjam: "-",
-                    note: "-",
-                    tglPinjam: "-",
-                    history: "-"
-                });
-            } else {
-                databaseGlove[idx].rfid = rfidValue;
-                databaseGlove[idx].type = document.getElementById('f_type').value;
-                databaseGlove[idx].buyer = document.getElementById('f_buyer').value.trim();
-                databaseGlove[idx].posisi = document.getElementById('f_posisi').value.trim();
-                databaseGlove[idx].qa = document.getElementById('f_qa').value.trim() || '-';
-                databaseGlove[idx].sampleNum = document.getElementById('f_sample_num').value.trim();
-                databaseGlove[idx].tahun = document.getElementById('f_tahun').value;
-                databaseGlove[idx].style = document.getElementById('f_style').value.trim();
-                databaseGlove[idx].color = document.getElementById('f_color').value.trim();
-                databaseGlove[idx].qty = document.getElementById('f_qty').value;
-                databaseGlove[idx].uom = document.getElementById('f_uom').value;
-                databaseGlove[idx].size = document.getElementById('f_size').value.trim();
-                databaseGlove[idx].appDate = document.getElementById('f_app_date').value || '-';
-                databaseGlove[idx].remark = document.getElementById('f_remark').value.trim() || '-';
-            }
+            // Siapkan objek data yang bersih tanpa menyertakan firebaseKey di dalamnya
+const gloveDataObj = {
+    rfid: rfidValue,
+    type: document.getElementById('f_type').value,
+    buyer: document.getElementById('f_buyer').value.trim(),
+    posisi: document.getElementById('f_posisi').value.trim(),
+    qa: document.getElementById('f_qa').value.trim() || '-',
+    sampleNum: document.getElementById('f_sample_num').value.trim(),
+    tahun: document.getElementById('f_tahun').value,
+    style: document.getElementById('f_style').value.trim(),
+    color: document.getElementById('f_color').value.trim(),
+    qty: document.getElementById('f_qty').value,
+    uom: document.getElementById('f_uom').value,
+    size: document.getElementById('f_size').value.trim(),
+    appDate: document.getElementById('f_app_date').value || '-',
+    remark: document.getElementById('f_remark').value.trim() || '-',
+    isDipinjam: idx === -1 ? "TIDAK" : databaseGlove[idx].isDipinjam,
+    peminjam: idx === -1 ? "-" : databaseGlove[idx].peminjam,
+    note: idx === -1 ? "-" : databaseGlove[idx].note,
+    tglPinjam: idx === -1 ? "-" : databaseGlove[idx].tglPinjam,
+    history: idx === -1 ? "-" : databaseGlove[idx].history
+};
 
-            // SIMPAN KE FIREBASE
-            dbRef.set(databaseGlove).then(() => {
-                addModal.style.display = 'none';
-            }).catch(err => alert("Gagal menyimpan ke Cloud: " + err.message));
-        });
-
+if (idx === -1) {
+    // DATA BARU: Gunakan push() agar dibuatkan id unik otomatis oleh Firebase secara online
+    dbRef.push(gloveDataObj).then(() => {
+        addModal.style.display = 'none';
+    }).catch(err => alert("Gagal menyimpan ke Cloud: " + err.message));
+} else {
+    // EDIT DATA: Ambil key unik dari item yang diubah, lalu timpa path child tersebut
+    const targetKey = databaseGlove[idx].firebaseKey;
+    dbRef.child(targetKey).set(gloveDataObj).then(() => {
+        addModal.style.display = 'none';
+    }).catch(err => alert("Gagal mengupdate ke Cloud: " + err.message));
+}
         window.editGlove = function(index) {
             const item = databaseGlove[index];
             document.getElementById('editIndex').value = index;
@@ -920,13 +921,13 @@
         };
 
         window.deleteGlove = function(index) {
-            if(confirm("Hapus aset?")) {
-                databaseGlove.splice(index, 1);
-                // UPDATE KE FIREBASE
-                dbRef.set(databaseGlove);
-            }
-        };
-
+    if(confirm("Hapus aset?")) {
+        const targetKey = databaseGlove[index].firebaseKey;
+        // Langsung hapus child spesifik di Firebase Cloud
+        dbRef.child(targetKey).remove()
+            .catch(err => alert("Gagal menghapus data di cloud: " + err.message));
+    }
+};
         function renderTabelGlove() {
             const tableBody = document.getElementById('tableBodyGlove');
             if(!tableBody) return;
