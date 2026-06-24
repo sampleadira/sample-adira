@@ -724,19 +724,20 @@
         const firebaseConfig = {
             apiKey: "AIzaSyCq2b73RQ21CgNWRiIeVvveoPWunMZGjno",
             authDomain: "sample-adira.firebaseapp.com",
+            databaseURL: "https://sample-adira-default-rtdb.asia-southeast1.firebasedatabase.app/", 
             projectId: "sample-adira",
-            storageBucket: "sample-adira.firebasestorage.app",
+            storageBucket: "sample-adira.appspot.com",
             messagingSenderId: "324122479981",
             appId: "1:324122479981:web:5834750c9569889e9c5e64",
             measurementId: "G-QVLJZXMW3Q"
         };
-        firebase.initializeApp(firebaseConfig);
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 
-        // Referensi Database Pusat
-        const dbRef = firebase.database().ref('adira_glove_db');
-        // Referensi Database Pusat untuk Master Data RFID Karyawan (Online Cloud)
-        const dbKaryawanRef = firebase.database().ref('daftar_karyawan');
-
+// Inisialisasi Database
+const database = firebase.database();
+const dbRef = database.ref('gloveKeeping'); // Menyasar ke branch gloveKeeping
+const dbKaryawanRef = database.ref('karyawan'); // Menyasar ke branch karyawan
         const daftarEmailDiterima = [
             "arlitarahma.w@gmail.com",
             "sampleadira@gmail.com",
