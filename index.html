@@ -28,7 +28,7 @@
             padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: 6px;
+            font-weight: 600;
             font-size: 14px;
             transition: 0.2s;
         }
@@ -45,6 +45,31 @@
             transition: 0.2s;
         }
         .btn-sekunder:hover { background-color: #30363d; border-color: #8b949e; }
+
+        .btn-danger {
+            background-color: #21262d;
+            color: #f85149;
+            border: 1px solid rgba(248,81,73,0.4);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+        .btn-danger:hover { background-color: #f85149; color: #ffffff; }
+
+        .btn-edit {
+            background-color: #21262d;
+            color: #58a6ff;
+            border: 1px solid rgba(88,166,255,0.4);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+            margin-right: 5px;
+        }
+        .btn-edit:hover { background-color: #58a6ff; color: #ffffff; }
 
         /* --- 1. HALAMAN LOGIN --- */
         .login-container {
@@ -114,7 +139,7 @@
             align-items: center;
             border-bottom: 1px solid #30363d;
             padding-bottom: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         .user-panel { display: flex; align-items: center; gap: 15px; }
         
@@ -138,6 +163,36 @@
         .menu-card h3 { margin: 0 0 10px 0; font-size: 1.5em; }
         .menu-card p { color: #8b949e; margin: 0; font-size: 14px; line-height: 1.6; }
 
+        /* --- KOTAK RESUME DASHBOARD ATAS --- */
+        .resume-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .resume-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .resume-card .title {
+            font-size: 12px;
+            color: #8b949e;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        .resume-card .value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
         /* --- 3. SUBSYSTEM GLOVE KEEPING --- */
         .action-bar {
             display: flex;
@@ -158,7 +213,7 @@
             border-collapse: collapse;
             text-align: left;
             font-size: 13px;
-            min-width: 1800px;
+            min-width: 2000px; /* Lebar ditambah untuk kolom aksi */
         }
         th {
             background-color: #21262d;
@@ -176,7 +231,7 @@
         }
         tr:hover td { background-color: #1c212a; }
 
-        /* --- 4. MODAL FORM POP-UP (+ADD) --- */
+        /* --- 4. MODAL FORM POP-UP (+ADD / EDIT) --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -250,18 +305,16 @@
         }
     </style>
 
-    <!-- SDK FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
-    <!-- ================= SECTION 1: HALAMAN LOGIN ================= -->
     <div id="loginPage" class="login-container" style="display: none;">
         <div class="kiri">
             <h3 class="hijau">A | ADIRA SAMPLE CENTER</h3>
             <h1>Sistem Pusat <br><span class="hijau">Sample</span><br>Adira</h1>
-            <p>Database terpadu untuk melacak status WIP harian tim, mulai dari persiapan material, proses produksi, hingga approval akhir secara real-time.</p>
+            <p>Database terpadu semua dokumen sample.</p>
         </div>
         <div class="kanan">
             <div class="header-kanan">
@@ -281,7 +334,6 @@
     </div>
 
 
-    <!-- ================= SECTION 2: MENU UTAMA (DASHBOARD) ================= -->
     <div id="dashboardPage" class="container-app" style="display: none;">
         <div class="app-header">
             <div>
@@ -309,7 +361,6 @@
     </div>
 
 
-    <!-- ================= SECTION 3: SUBSYSTEM GLOVE KEEPING ================= -->
     <div id="gloveKeepingPage" class="container-app" style="display: none;">
         <div class="app-header">
             <div>
@@ -319,12 +370,26 @@
             <button id="backToDash" class="btn-sekunder">← Kembali ke Menu</button>
         </div>
 
+        <div class="resume-grid">
+            <div class="resume-card" style="border-left: 4px solid #58a6ff;">
+                <span class="title">Keeping Glove</span>
+                <span class="value" id="resKeeping">0 / 0 <span style="font-size:12px; font-weight:normal;" class="abu">Dipinjam</span></span>
+            </div>
+            <div class="resume-card" style="border-left: 4px solid #4ade80;">
+                <span class="title">Approved Sample</span>
+                <span class="value" id="resApproved">0 / 0 <span style="font-size:12px; font-weight:normal;" class="abu">Dipinjam</span></span>
+            </div>
+            <div class="resume-card" style="border-left: 4px solid #ffbc42;">
+                <span class="title">Duplikat Sample</span>
+                <span class="value" id="resDuplikat">0 / 0 <span style="font-size:12px; font-weight:normal;" class="abu">Dipinjam</span></span>
+            </div>
+        </div>
+
         <div class="action-bar">
             <span class="abu" id="totalItems">Menghitung total baris aset...</span>
             <button id="openAddModal" class="btn-utama">+ Add Register Baru</button>
         </div>
 
-        <!-- TABEL DATABASE UTAMA -->
         <div class="table-responsive">
             <table>
                 <thead>
@@ -348,34 +413,33 @@
                         <th>NOTE</th>
                         <th>TGL DIPINJAM</th>
                         <th>HISTORY PENGEMBALIAN</th>
+                        <th style="text-align: center; position: sticky; right: 0; background: #21262d; z-index: 5;">AKSI</th>
                     </tr>
                 </thead>
                 <tbody id="tableBodyGlove">
-                    <!-- Baris data otomatis via JS -->
-                </tbody>
+                    </tbody>
             </table>
         </div>
     </div>
 
 
-    <!-- ================= SECTION 4: FORM MODAL POP-UP (+ADD) ================= -->
     <div id="addModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>+ Register Item Glove Keeping Baru</h3>
+                <h3 id="modalTitle">+ Register Item Glove Keeping Baru</h3>
                 <button id="closeModal" class="btn-sekunder" style="padding: 4px 10px;">✕</button>
             </div>
             
             <form id="formGlove">
+                <input type="hidden" id="editIndex" value="-1">
+
                 <div class="form-grid">
                     
-                    <!-- AREA RFID -->
                     <div class="form-group full-width">
                         <label for="f_rfid">ID RFID <span class="hijau">(Scan RFID Tag Glove Sekarang)</span></label>
                         <input type="text" id="f_rfid" class="rfid-field" placeholder="Tempelkan/Scan tag ke reader..." required autocomplete="off">
                     </div>
 
-                    <!-- TYPE OPSI -->
                     <div class="form-group">
                         <label for="f_type">TYPE</label>
                         <select id="f_type" required>
@@ -385,16 +449,13 @@
                         </select>
                     </div>
 
-                    <!-- BUYER SMART LIST -->
                     <div class="form-group">
                         <label for="f_buyer">BUYER <span class="abu">(Ketik nama baru untuk menambah opsi)</span></label>
                         <input type="text" id="f_buyer" list="list_buyer" placeholder="Contoh: Callaway" required>
                         <datalist id="list_buyer">
-                            <!-- Opsi dinamis -->
-                        </datalist>
+                            </datalist>
                     </div>
 
-                    <!-- POSISI & NO QA FILE -->
                     <div class="form-group">
                         <label for="f_posisi">POSISI (Rak / Lokasi)</label>
                         <input type="text" id="f_posisi" placeholder="Contoh: B10" required>
@@ -404,7 +465,6 @@
                         <input type="text" id="f_qa" placeholder="">
                     </div>
 
-                    <!-- SAMPLE # (DIUBAH MENJADI TEXT NUMBER) & TAHUN -->
                     <div class="form-group">
                         <label for="f_sample_num">SAMPLE #</label>
                         <input type="text" id="f_sample_num" placeholder="0" required>
@@ -414,7 +474,6 @@
                         <input type="number" id="f_tahun" value="2026" required>
                     </div>
 
-                    <!-- STYLE & COLOR -->
                     <div class="form-group">
                         <label for="f_style">STYLE</label>
                         <input type="text" id="f_style" placeholder="Contoh: THERMAL GRIP 2027" required>
@@ -424,7 +483,6 @@
                         <input type="text" id="f_color" placeholder="Contoh: Black/White" required>
                     </div>
 
-                    <!-- QTY & UOM -->
                     <div class="form-group">
                         <label for="f_qty">QTY</label>
                         <input type="number" id="f_qty" placeholder="0" required>
@@ -437,24 +495,20 @@
                         </select>
                     </div>
 
-                    <!-- SIZE SMART LIST -->
                     <div class="form-group">
                         <label for="f_size">SIZE SAMPLE <span class="abu">(Ketik untuk tambah baru)</span></label>
                         <input type="text" id="f_size" list="list_size" placeholder="Contoh: M / 9" required>
                         <datalist id="list_size">
-                            <!-- Opsi dinamis -->
-                        </datalist>
+                            </datalist>
                     </div>
 
-                    <!-- APPROVED DATE -->
                     <div class="form-group">
-                        <label for="f_app_date">APPROVED DATE</label>
-                        <input type="date" id="f_app_date" required>
+                        <label for="f_app_date">APPROVED DATE <span class="abu">(Opsional)</span></label>
+                        <input type="date" id="f_app_date">
                     </div>
 
-                    <!-- REMARK -->
                     <div class="form-group full-width">
-                        <label for="f_remark">REMARK (Catatan Tambahan)</label>
+                        <label for="f_remark">REMARK (Catatan Tambahan) <span class="abu">(Opsional)</span></label>
                         <textarea id="f_remark" rows="3" placeholder="Masukkan remark sample"></textarea>
                     </div>
 
@@ -462,7 +516,7 @@
 
                 <div class="modal-footer">
                     <button type="button" id="btnBatal" class="btn-sekunder">Batal</button>
-                    <button type="submit" class="btn-utama">Simpan Register</button>
+                    <button type="submit" id="btnSimpan" class="btn-utama">Simpan Register</button>
                 </div>
             </form>
         </div>
@@ -473,7 +527,7 @@
         // ===================================================
         // 1. KODE FIREBASE CONFIG (PASTIKAN TETAP TERISI)
         // ===================================================
-        const firebaseConfig = {
+  const firebaseConfig = {
   apiKey: "AIzaSyCq2b73RQ21CgNWRiIeVvveoPWunMZGjno",
   authDomain: "sample-adira.firebaseapp.com",
   projectId: "sample-adira",
@@ -488,8 +542,8 @@
         const daftarEmailDiterima = [
             "arlitarahma.w@gmail.com",
             "sampleadira@gmail.com",
-            //"emailrekan2@gmail.com",
-            //"emailrekan3@gmail.com"
+            "emailrekan2@gmail.com",
+            "emailrekan3@gmail.com"
         ];
 
         // --- MANAJEMEN HALAMAN ---
@@ -522,6 +576,7 @@
         document.getElementById('toGloveKeeping').addEventListener('click', () => {
             dashboardPage.style.display = 'none';
             gloveKeepingPage.style.display = 'block';
+            renderTabelGlove();
         });
         document.getElementById('backToDash').addEventListener('click', () => {
             gloveKeepingPage.style.display = 'none';
@@ -542,6 +597,9 @@
         // ===================================================
         const addModal = document.getElementById('addModal');
         const formGlove = document.getElementById('formGlove');
+        const modalTitle = document.getElementById('modalTitle');
+        const btnSimpan = document.getElementById('btnSimpan');
+        const editIndexInput = document.getElementById('editIndex');
         
         let databaseGlove = JSON.parse(localStorage.getItem('adira_glove_db')) || [];
         let opsiBuyer = JSON.parse(localStorage.getItem('adira_opsi_buyer')) || ["Callaway", "TaylorMade", "Titleist"];
@@ -549,6 +607,10 @@
 
         document.getElementById('openAddModal').addEventListener('click', () => {
             formGlove.reset();
+            editIndexInput.value = "-1";
+            modalTitle.innerText = "+ Register Item Glove Keeping Baru";
+            btnSimpan.innerText = "Simpan Register";
+            document.getElementById('f_rfid').disabled = false;
             addModal.style.display = 'flex';
             setTimeout(() => document.getElementById('f_rfid').focus(), 100);
         });
@@ -570,6 +632,7 @@
 
             const buyerValue = document.getElementById('f_buyer').value.trim();
             const sizeValue = document.getElementById('f_size').value.trim();
+            const idx = parseInt(editIndexInput.value);
 
             if(!opsiBuyer.includes(buyerValue)) {
                 opsiBuyer.push(buyerValue);
@@ -580,49 +643,125 @@
                 localStorage.setItem('adira_opsi_size', JSON.stringify(opsiSize));
             }
 
-            const itemBaru = {
-                rfid: document.getElementById('f_rfid').value.trim(),
-                type: document.getElementById('f_type').value,
-                buyer: buyerValue,
-                posisi: document.getElementById('f_posisi').value.trim(),
-                qa: document.getElementById('f_qa').value.trim() || '-',
-                sampleNum: document.getElementById('f_sample_num').value.trim(),
-                tahun: document.getElementById('f_tahun').value,
-                style: document.getElementById('f_style').value.trim(),
-                color: document.getElementById('f_color').value.trim(),
-                qty: document.getElementById('f_qty').value,
-                uom: document.getElementById('f_uom').value,
-                size: sizeValue,
-                appDate: document.getElementById('f_app_date').value,
-                remark: document.getElementById('f_remark').value.trim(),
-                isDipinjam: "TIDAK",
-                peminjam: "-",
-                note: "-",
-                tglPinjam: "-",
-                history: "-"
-            };
+            if (idx === -1) {
+                // MODEL TAMBAH BARU (ADD)
+                const itemBaru = {
+                    rfid: document.getElementById('f_rfid').value.trim(),
+                    type: document.getElementById('f_type').value,
+                    buyer: buyerValue,
+                    posisi: document.getElementById('f_posisi').value.trim(),
+                    qa: document.getElementById('f_qa').value.trim() || '-',
+                    sampleNum: document.getElementById('f_sample_num').value.trim(),
+                    tahun: document.getElementById('f_tahun').value,
+                    style: document.getElementById('f_style').value.trim(),
+                    color: document.getElementById('f_color').value.trim(),
+                    qty: document.getElementById('f_qty').value,
+                    uom: document.getElementById('f_uom').value,
+                    size: sizeValue,
+                    appDate: document.getElementById('f_app_date').value || '-',
+                    remark: document.getElementById('f_remark').value.trim() || '-',
+                    isDipinjam: "TIDAK",
+                    peminjam: "-",
+                    note: "-",
+                    tglPinjam: "-",
+                    history: "-"
+                };
+                databaseGlove.unshift(itemBaru);
+                alert("Aset Glove berhasil didaftarkan!");
+            } else {
+                // MODEL UPDATE DATA (EDIT)
+                databaseGlove[idx].type = document.getElementById('f_type').value;
+                databaseGlove[idx].buyer = buyerValue;
+                databaseGlove[idx].posisi = document.getElementById('f_posisi').value.trim();
+                databaseGlove[idx].qa = document.getElementById('f_qa').value.trim() || '-';
+                databaseGlove[idx].sampleNum = document.getElementById('f_sample_num').value.trim();
+                databaseGlove[idx].tahun = document.getElementById('f_tahun').value;
+                databaseGlove[idx].style = document.getElementById('f_style').value.trim();
+                databaseGlove[idx].color = document.getElementById('f_color').value.trim();
+                databaseGlove[idx].qty = document.getElementById('f_qty').value;
+                databaseGlove[idx].uom = document.getElementById('f_uom').value;
+                databaseGlove[idx].size = sizeValue;
+                databaseGlove[idx].appDate = document.getElementById('f_app_date').value || '-';
+                databaseGlove[idx].remark = document.getElementById('f_remark').value.trim() || '-';
+                alert("Data aset berhasil diperbarui!");
+            }
 
-            databaseGlove.unshift(itemBaru);
             localStorage.setItem('adira_glove_db', JSON.stringify(databaseGlove));
-
             renderTabelGlove();
             updateSmartDatalist();
             tutupModal();
-            alert("Aset Glove dengan RFID " + itemBaru.rfid + " berhasil diregister!");
         });
+
+        // FUNGSI EDIT DATA BARIS
+        window.editGlove = function(index) {
+            const item = databaseGlove[index];
+            editIndexInput.value = index;
+            modalTitle.innerText = "📝 Edit Data Glove Keeping";
+            btnSimpan.innerText = "Simpan Perubahan";
+
+            // Pasang data lama ke form input
+            document.getElementById('f_rfid').value = item.rfid;
+            document.getElementById('f_rfid').disabled = true; // Lock RFID agar tidak sembarang diubah saat edit
+            document.getElementById('f_type').value = item.type;
+            document.getElementById('f_buyer').value = item.buyer;
+            document.getElementById('f_posisi').value = item.posisi;
+            document.getElementById('f_qa').value = item.qa === '-' ? '' : item.qa;
+            document.getElementById('f_sample_num').value = item.sampleNum;
+            document.getElementById('f_tahun').value = item.tahun;
+            document.getElementById('f_style').value = item.style;
+            document.getElementById('f_color').value = item.color;
+            document.getElementById('f_qty').value = item.qty;
+            document.getElementById('f_uom').value = item.uom;
+            document.getElementById('f_size').value = item.size;
+            document.getElementById('f_app_date').value = item.appDate === '-' ? '' : item.appDate;
+            document.getElementById('f_remark').value = item.remark === '-' ? '' : item.remark;
+
+            addModal.style.display = 'flex';
+        };
+
+        // FUNGSI DELETE DATA BARIS
+        window.deleteGlove = function(index) {
+            if(confirm(`Apakah Anda yakin ingin menghapus aset dengan RFID "${databaseGlove[index].rfid}"?`)) {
+                databaseGlove.splice(index, 1);
+                localStorage.setItem('adira_glove_db', JSON.stringify(databaseGlove));
+                renderTabelGlove();
+            }
+        };
 
         function renderTabelGlove() {
             const tableBody = document.getElementById('tableBodyGlove');
             const totalItems = document.getElementById('totalItems');
             
+            // --- LOGIKA HITUNG RESUME DASHBOARD ---
+            let totalKeeping = 0, pinjamKeeping = 0;
+            let totalApproved = 0, pinjamApproved = 0;
+            let totalDuplikat = 0, pinjamDuplikat = 0;
+
+            databaseGlove.forEach(item => {
+                if(item.type === "Keeping") {
+                    totalKeeping++;
+                    if(item.isDipinjam === "YA") pinjamKeeping++;
+                } else if(item.type === "Sample Approved") {
+                    totalApproved++;
+                    if(item.isDipinjam === "YA") pinjamApproved++;
+                } else if(item.type === "Duplikat Sample") {
+                    totalDuplikat++;
+                    if(item.isDipinjam === "YA") pinjamDuplikat++;
+                }
+            });
+
+            document.getElementById('resKeeping').innerHTML = `${pinjamKeeping} / ${totalKeeping} <span style="font-size:12px; font-weight:normal;" class="abu">Dipinjam</span>`;
+            document.getElementById('resApproved').innerHTML = `${pinjamApproved} / ${totalApproved} <span style="font-size:12px; font-weight:normal;" class="abu">Dipinjam</span>`;
+            document.getElementById('resDuplikat').innerHTML = `${pinjamDuplikat} / ${totalDuplikat} <span style="font-size:12px; font-weight:normal;" class="abu">Dipinjam</span>`;
+            
             totalItems.innerText = `Total: ${databaseGlove.length} baris aset terdaftar.`;
 
             if (databaseGlove.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="19" style="text-align: center; color: #8b949e; padding: 30px;">Belum ada data glove terdaftar. Klik + Add untuk menambahkan data baru.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="20" style="text-align: center; color: #8b949e; padding: 30px;">Belum ada data glove terdaftar. Klik + Add untuk menambahkan data baru.</td></tr>`;
                 return;
             }
 
-            tableBody.innerHTML = databaseGlove.map(item => `
+            tableBody.innerHTML = databaseGlove.map((item, index) => `
                 <tr>
                     <td class="hijau" style="font-family: monospace; font-weight: bold;">${item.rfid}</td>
                     <td>${item.type}</td>
@@ -637,12 +776,16 @@
                     <td><span style="font-size:11px; padding:2px 6px; background:#21262d; border-radius:4px;">${item.uom}</span></td>
                     <td><strong>${item.size}</strong></td>
                     <td>${item.appDate}</td>
-                    <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${item.remark || '-'}</td>
+                    <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${item.remark}</td>
                     <td><span class="${item.isDipinjam === 'YA' ? 'merah' : 'hijau'}">${item.isDipinjam}</span></td>
                     <td>${item.peminjam}</td>
                     <td>${item.note}</td>
                     <td>${item.tglPinjam}</td>
                     <td>${item.history}</td>
+                    <td style="text-align: center; position: sticky; right: 0; background: #161b22; z-index: 4; border-left: 1px solid #30363d;">
+                        <button class="btn-edit" onclick="editGlove(${index})">📝 Edit</button>
+                        <button class="btn-danger" onclick="deleteGlove(${index})">🗑️ Delete</button>
+                    </td>
                 </tr>
             `).join('');
         }
