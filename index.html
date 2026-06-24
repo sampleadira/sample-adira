@@ -188,7 +188,7 @@
             margin-bottom: 5px;
         }
         .resume-card .value {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             color: #ffffff;
         }
@@ -213,7 +213,7 @@
             border-collapse: collapse;
             text-align: left;
             font-size: 13px;
-            min-width: 2000px; /* Lebar ditambah untuk kolom aksi */
+            min-width: 2000px;
         }
         th {
             background-color: #21262d;
@@ -305,11 +305,13 @@
         }
     </style>
 
+    <!-- SDK FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
+    <!-- ================= SECTION 1: HALAMAN LOGIN ================= -->
     <div id="loginPage" class="login-container" style="display: none;">
         <div class="kiri">
             <h3 class="hijau">A | ADIRA SAMPLE CENTER</h3>
@@ -334,6 +336,7 @@
     </div>
 
 
+    <!-- ================= SECTION 2: MENU UTAMA (DASHBOARD) ================= -->
     <div id="dashboardPage" class="container-app" style="display: none;">
         <div class="app-header">
             <div>
@@ -361,6 +364,7 @@
     </div>
 
 
+    <!-- ================= SECTION 3: SUBSYSTEM GLOVE KEEPING ================= -->
     <div id="gloveKeepingPage" class="container-app" style="display: none;">
         <div class="app-header">
             <div>
@@ -370,18 +374,19 @@
             <button id="backToDash" class="btn-sekunder">← Kembali ke Menu</button>
         </div>
 
+        <!-- KOTAK RESUME DASHBOARD DENGAN TEKS YANG DIPERBARUI -->
         <div class="resume-grid">
             <div class="resume-card" style="border-left: 4px solid #58a6ff;">
                 <span class="title">Keeping Glove</span>
-                <span class="value" id="resKeeping">0 / 0 <span style="font-size:12px; font-weight:normal;" class="abu">Dipinjam</span></span>
+                <span class="value" id="resKeeping">0 dipinjam / 0 total glove</span>
             </div>
             <div class="resume-card" style="border-left: 4px solid #4ade80;">
                 <span class="title">Approved Sample</span>
-                <span class="value" id="resApproved">0 / 0 <span style="font-size:12px; font-weight:normal;" class="abu">Dipinjam</span></span>
+                <span class="value" id="resApproved">0 dipinjam / 0 total glove</span>
             </div>
             <div class="resume-card" style="border-left: 4px solid #ffbc42;">
                 <span class="title">Duplikat Sample</span>
-                <span class="value" id="resDuplikat">0 / 0 <span style="font-size:12px; font-weight:normal;" class="abu">Dipinjam</span></span>
+                <span class="value" id="resDuplikat">0 dipinjam / 0 total glove</span>
             </div>
         </div>
 
@@ -390,6 +395,7 @@
             <button id="openAddModal" class="btn-utama">+ Add Register Baru</button>
         </div>
 
+        <!-- TABEL DATABASE UTAMA -->
         <div class="table-responsive">
             <table>
                 <thead>
@@ -417,12 +423,14 @@
                     </tr>
                 </thead>
                 <tbody id="tableBodyGlove">
-                    </tbody>
+                    <!-- Baris data otomatis via JS -->
+                </tbody>
             </table>
         </div>
     </div>
 
 
+    <!-- ================= SECTION 4: FORM MODAL POP-UP (+ADD / EDIT) ================= -->
     <div id="addModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -453,7 +461,8 @@
                         <label for="f_buyer">BUYER <span class="abu">(Ketik nama baru untuk menambah opsi)</span></label>
                         <input type="text" id="f_buyer" list="list_buyer" placeholder="Contoh: Callaway" required>
                         <datalist id="list_buyer">
-                            </datalist>
+                            <!-- Opsi dinamis -->
+                        </datalist>
                     </div>
 
                     <div class="form-group">
@@ -499,7 +508,8 @@
                         <label for="f_size">SIZE SAMPLE <span class="abu">(Ketik untuk tambah baru)</span></label>
                         <input type="text" id="f_size" list="list_size" placeholder="Contoh: M / 9" required>
                         <datalist id="list_size">
-                            </datalist>
+                            <!-- Opsi dinamis -->
+                        </datalist>
                     </div>
 
                     <div class="form-group">
@@ -527,7 +537,7 @@
         // ===================================================
         // 1. KODE FIREBASE CONFIG (PASTIKAN TETAP TERISI)
         // ===================================================
-  const firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyCq2b73RQ21CgNWRiIeVvveoPWunMZGjno",
   authDomain: "sample-adira.firebaseapp.com",
   projectId: "sample-adira",
@@ -536,7 +546,6 @@
   appId: "1:324122479981:web:5834750c9569889e9c5e64",
   measurementId: "G-QVLJZXMW3Q"
 };
-
         firebase.initializeApp(firebaseConfig);
 
         const daftarEmailDiterima = [
@@ -644,7 +653,6 @@
             }
 
             if (idx === -1) {
-                // MODEL TAMBAH BARU (ADD)
                 const itemBaru = {
                     rfid: document.getElementById('f_rfid').value.trim(),
                     type: document.getElementById('f_type').value,
@@ -669,7 +677,6 @@
                 databaseGlove.unshift(itemBaru);
                 alert("Aset Glove berhasil didaftarkan!");
             } else {
-                // MODEL UPDATE DATA (EDIT)
                 databaseGlove[idx].type = document.getElementById('f_type').value;
                 databaseGlove[idx].buyer = buyerValue;
                 databaseGlove[idx].posisi = document.getElementById('f_posisi').value.trim();
@@ -692,16 +699,14 @@
             tutupModal();
         });
 
-        // FUNGSI EDIT DATA BARIS
         window.editGlove = function(index) {
             const item = databaseGlove[index];
             editIndexInput.value = index;
             modalTitle.innerText = "📝 Edit Data Glove Keeping";
             btnSimpan.innerText = "Simpan Perubahan";
 
-            // Pasang data lama ke form input
             document.getElementById('f_rfid').value = item.rfid;
-            document.getElementById('f_rfid').disabled = true; // Lock RFID agar tidak sembarang diubah saat edit
+            document.getElementById('f_rfid').disabled = true; 
             document.getElementById('f_type').value = item.type;
             document.getElementById('f_buyer').value = item.buyer;
             document.getElementById('f_posisi').value = item.posisi;
@@ -719,7 +724,6 @@
             addModal.style.display = 'flex';
         };
 
-        // FUNGSI DELETE DATA BARIS
         window.deleteGlove = function(index) {
             if(confirm(`Apakah Anda yakin ingin menghapus aset dengan RFID "${databaseGlove[index].rfid}"?`)) {
                 databaseGlove.splice(index, 1);
@@ -732,7 +736,6 @@
             const tableBody = document.getElementById('tableBodyGlove');
             const totalItems = document.getElementById('totalItems');
             
-            // --- LOGIKA HITUNG RESUME DASHBOARD ---
             let totalKeeping = 0, pinjamKeeping = 0;
             let totalApproved = 0, pinjamApproved = 0;
             let totalDuplikat = 0, pinjamDuplikat = 0;
@@ -750,9 +753,10 @@
                 }
             });
 
-            document.getElementById('resKeeping').innerHTML = `${pinjamKeeping} / ${totalKeeping} <span style="font-size:12px; font-weight:normal;" class="abu">Dipinjam</span>`;
-            document.getElementById('resApproved').innerHTML = `${pinjamApproved} / ${totalApproved} <span style="font-size:12px; font-weight:normal;" class="abu">Dipinjam</span>`;
-            document.getElementById('resDuplikat').innerHTML = `${pinjamDuplikat} / ${totalDuplikat} <span style="font-size:12px; font-weight:normal;" class="abu">Dipinjam</span>`;
+            // --- FORMAT TEKS RESUME TERBARU (Sesuai Permintaan) ---
+            document.getElementById('resKeeping').innerHTML = `${pinjamKeeping} dipinjam / ${totalKeeping} total glove`;
+            document.getElementById('resApproved').innerHTML = `${pinjamApproved} dipinjam / ${totalApproved} total glove`;
+            document.getElementById('resDuplikat').innerHTML = `${pinjamDuplikat} dipinjam / ${totalDuplikat} total glove`;
             
             totalItems.innerText = `Total: ${databaseGlove.length} baris aset terdaftar.`;
 
