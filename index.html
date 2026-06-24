@@ -630,7 +630,7 @@
 
                     <div class="form-group">
                         <label for="p_nama">NAMA PEMINJAM</label>
-                        <input type="text" id="p_nama" placeholder="Nama otomatis terdeteksi..." readonly style="background:#21262d; color:#8b949e;">
+                        <input type="text" id="p_nama" placeholder="Nama Peminjam / Dept" required autocomplete="off">
                     </div>
 
                     <div class="form-group">
@@ -718,7 +718,7 @@
 
     <script>
         // Config Firebase 
-        const firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyCq2b73RQ21CgNWRiIeVvveoPWunMZGjno",
   authDomain: "sample-adira.firebaseapp.com",
   projectId: "sample-adira",
@@ -914,6 +914,14 @@
             formPinjam.reset();
             document.getElementById('pinjamIndex').value = "-1";
             
+            // Reset Dinamis State Input Nama Peminjam ke default awal
+            const namaInput = document.getElementById('p_nama');
+            namaInput.value = "";
+            namaInput.readOnly = false;
+            namaInput.style.background = "";
+            namaInput.style.color = "";
+            namaInput.placeholder = "Nama Peminjam / Dept";
+
             // Set default tanggal hari ini
             const hariIni = new Date().toISOString().split('T')[0];
             document.getElementById('p_tgl').value = hariIni;
@@ -925,15 +933,32 @@
         document.getElementById('closePinjamModal').addEventListener('click', () => pinjamModal.style.display = 'none');
         document.getElementById('btnBatalPinjam').addEventListener('click', () => pinjamModal.style.display = 'none');
 
-        // Event listener saat ID CARD di-scan/ketik
+        // Logika Dinamis Scan ID Card Karyawan (Sesuai Koreksi)
         document.getElementById('p_idcard').addEventListener('input', (e) => {
             const idCardScanned = e.target.value.trim();
-            if(databaseIDCard[idCardScanned]) {
-                document.getElementById('p_nama').value = databaseIDCard[idCardScanned];
-            } else if (idCardScanned.length >= 6) {
-                document.getElementById('p_nama').value = "Guest / Operator Baru (" + idCardScanned + ")";
+            const namaInput = document.getElementById('p_nama');
+
+            if (idCardScanned === "") {
+                namaInput.value = "";
+                namaInput.readOnly = false;
+                namaInput.style.background = "";
+                namaInput.style.color = "";
+                namaInput.placeholder = "Nama Peminjam / Dept";
+            } else if (databaseIDCard[idCardScanned]) {
+                // Jika ID CARD terdaftar: Isi otomatis & KUNCI kolomnya
+                namaInput.value = databaseIDCard[idCardScanned];
+                namaInput.readOnly = true;
+                namaInput.style.background = "#21262d"; 
+                namaInput.style.color = "#8b949e";
             } else {
-                document.getElementById('p_nama').value = "";
+                // Jika ID CARD baru: BUKA kolom agar bisa diketik manual (Nama Peminjam / Dept)
+                if (namaInput.readOnly) {
+                    namaInput.value = ""; 
+                }
+                namaInput.readOnly = false;
+                namaInput.style.background = ""; 
+                namaInput.style.color = "";
+                namaInput.placeholder = "Nama Peminjam / Dept";
             }
         });
 
@@ -984,7 +1009,7 @@
 
             // Update status asset di database master
             databaseGlove[targetIdx].isDipinjam = "YA";
-            databaseGlove[targetIdx].peminjam = document.getElementById('p_nama').value;
+            databaseGlove[targetIdx].peminjam = document.getElementById('p_nama').value.trim();
             databaseGlove[targetIdx].tglPinjam = document.getElementById('p_tgl').value;
             databaseGlove[targetIdx].note = document.getElementById('p_note').value.trim();
 
@@ -1002,7 +1027,14 @@
             
             document.getElementById('p_tgl').value = item.tglPinjam;
             document.getElementById('p_idcard').value = "BY-PASSED";
-            document.getElementById('p_nama').value = item.peminjam;
+            
+            // Izinkan pengeditan nama saat mode log edit admin berkas pinjam
+            const namaInput = document.getElementById('p_nama');
+            namaInput.value = item.peminjam;
+            namaInput.readOnly = false;
+            namaInput.style.background = "";
+            namaInput.style.color = "";
+
             document.getElementById('p_rfid').value = item.rfid;
             document.getElementById('p_note').value = item.note;
 
@@ -1072,7 +1104,7 @@
         });
 
         // Eksekusi Tombol Konfirmasi Pengembalian Selesai
-        document.getElementById('btnProsesHealthy') || document.getElementById('btnProsesKembali').addEventListener('click', () => {
+        document.getElementById('btnProsesKembali').addEventListener('click', () => {
             if(kembaliGlobalIdx === -1) return;
 
             const item = databaseGlove[kembaliGlobalIdx];
