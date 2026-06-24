@@ -20,6 +20,8 @@
         .hijau { color: #4ade80; }
         .merah { color: #f85149; }
         .abu { color: #8b949e; }
+        .kuning { color: #ffbc42; }
+        .biru { color: #58a6ff; }
         
         .btn-utama {
             background-color: #238636;
@@ -193,12 +195,16 @@
             color: #ffffff;
         }
 
-        /* --- 3. SUBSYSTEM GLOVE KEEPING --- */
+        /* --- 3. SUBSYSTEM TABLES --- */
         .action-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
         }
         
         .table-responsive {
@@ -213,7 +219,7 @@
             border-collapse: collapse;
             text-align: left;
             font-size: 13px;
-            min-width: 2000px;
+            min-width: 1800px;
         }
         th {
             background-color: #21262d;
@@ -231,7 +237,7 @@
         }
         tr:hover td { background-color: #1c212a; }
 
-        /* --- 4. MODAL FORM POP-UP (+ADD / EDIT) --- */
+        /* --- 4. MODAL FORM POP-UP --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -295,6 +301,10 @@
             border: 1px dashed #4ade80 !important;
             background-color: #112217 !important;
         }
+        .idcard-field {
+            border: 1px dashed #58a6ff !important;
+            background-color: #0f2030 !important;
+        }
         .modal-footer {
             margin-top: 25px;
             padding-top: 15px;
@@ -303,13 +313,33 @@
             justify-content: flex-end;
             gap: 10px;
         }
+
+        /* Highlight khusus pengembalian posisi rak */
+        .highlight-box {
+            background-color: #1c1f26;
+            border: 1px solid #30363d;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .highlight-large {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffbc42;
+            margin-top: 5px;
+        }
     </style>
 
+    <!-- SDK FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
+    <!-- ================= SECTION 1: HALAMAN LOGIN ================= -->
     <div id="loginPage" class="login-container" style="display: none;">
         <div class="kiri">
             <h3 class="hijau">A | ADIRA SAMPLE CENTER</h3>
@@ -334,6 +364,7 @@
     </div>
 
 
+    <!-- ================= SECTION 2: MENU UTAMA (DASHBOARD) ================= -->
     <div id="dashboardPage" class="container-app" style="display: none;">
         <div class="app-header">
             <div>
@@ -361,6 +392,7 @@
     </div>
 
 
+    <!-- ================= SECTION 3: SUBSYSTEM GLOVE KEEPING ================= -->
     <div id="gloveKeepingPage" class="container-app" style="display: none;">
         <div class="app-header">
             <div>
@@ -416,13 +448,79 @@
                         <th style="text-align: center; position: sticky; right: 0; background: #21262d; z-index: 5;">AKSI</th>
                     </tr>
                 </thead>
-                <tbody id="tableBodyGlove">
-                    </tbody>
+                <tbody id="tableBodyGlove"></tbody>
             </table>
         </div>
     </div>
 
 
+    <!-- ================= SECTION 5: SUBSYSTEM PEMINJAMAN GLOVE ================= -->
+    <div id="peminjamanPage" class="container-app" style="display: none;">
+        <div class="app-header">
+            <div>
+                <h3 class="biru" style="margin: 0; font-size: 14px; letter-spacing: 1px;">LOGISTIK DIGITAL</h3>
+                <h2 style="margin: 5px 0 0 0;">📝 List Glove Sedang Dipinjam</h2>
+            </div>
+            <button id="backToDash2" class="btn-sekunder">← Kembali ke Menu</button>
+        </div>
+
+        <!-- 1. Resume Dashboard (Hanya Menampilkan Yang Dipinjam) -->
+        <div class="resume-grid">
+            <div class="resume-card" style="border-left: 4px solid #58a6ff;">
+                <span class="title">Keeping Glove Dipinjam</span>
+                <span class="value" id="resPinjamKeeping">0 Glove</span>
+            </div>
+            <div class="resume-card" style="border-left: 4px solid #4ade80;">
+                <span class="title">Approved Sample Dipinjam</span>
+                <span class="value" id="resPinjamApproved">0 Glove</span>
+            </div>
+            <div class="resume-card" style="border-left: 4px solid #ffbc42;">
+                <span class="title">Duplikat Sample Dipinjam</span>
+                <span class="value" id="resPinjamDuplikat">0 Glove</span>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <span class="abu" id="totalPinjamItems">Mendeteksi berkas pinjaman...</span>
+            <div class="action-buttons">
+                <button id="openKembaliModal" class="btn-sekunder" style="border-color: #ffbc42; color: #ffbc42;">🔄 Glove Kembali</button>
+                <button id="openPinjamModal" class="btn-utama" style="background-color: #1f6feb; border-color: #388bfd;">+ Pinjam Glove</button>
+            </div>
+        </div>
+
+        <!-- 2 & 3. Tabel Filter Khusus List Sample Dipinjam & Susunan Kolom Baru -->
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>TGL DI PINJAM</th>
+                        <th>NAMA PEMINJAM</th>
+                        <th>NOTE</th>
+                        <th>HISTORY PENGEMBALIAN</th>
+                        <th>RFID ID</th>
+                        <th>TYPE</th>
+                        <th>BUYER</th>
+                        <th>POSISI</th>
+                        <th>NO QA FILE</th>
+                        <th>SAMPLE #</th>
+                        <th>TAHUN</th>
+                        <th>STYLE</th>
+                        <th>COLOR</th>
+                        <th>QTY</th>
+                        <th>UOM</th>
+                        <th>SIZE SAMPLE</th>
+                        <th>APPROVED DATE</th>
+                        <th>REMARK</th>
+                        <th style="text-align: center; position: sticky; right: 0; background: #21262d; z-index: 5;">AKSI</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBodyPinjam"></tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <!-- ================= SECTION 4: FORM MODAL GLOVE KEEPING ================= -->
     <div id="addModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -432,14 +530,11 @@
             
             <form id="formGlove">
                 <input type="hidden" id="editIndex" value="-1">
-
                 <div class="form-grid">
-                    
                     <div class="form-group full-width">
                         <label for="f_rfid">ID RFID <span class="hijau">(Scan / Edit RFID Tag Glove)</span></label>
                         <input type="text" id="f_rfid" class="rfid-field" placeholder="Tempelkan/Scan tag ke reader..." required autocomplete="off">
                     </div>
-
                     <div class="form-group">
                         <label for="f_type">TYPE</label>
                         <select id="f_type" required>
@@ -448,44 +543,38 @@
                             <option value="Duplikat Sample">Duplikat Sample</option>
                         </select>
                     </div>
-
                     <div class="form-group">
-                        <label for="f_buyer">BUYER <span class="abu">(Ketik nama baru untuk menambah opsi)</span></label>
-                        <input type="text" id="f_buyer" list="list_buyer" placeholder="Contoh: Callaway" required>
-                        <datalist id="list_buyer">
-                            </datalist>
+                        <label for="f_buyer">BUYER</label>
+                        <input type="text" id="f_buyer" list="list_buyer" required>
+                        <datalist id="list_buyer"></datalist>
                     </div>
-
                     <div class="form-group">
                         <label for="f_posisi">POSISI (Rak / Lokasi)</label>
-                        <input type="text" id="f_posisi" placeholder="Contoh: B10" required>
+                        <input type="text" id="f_posisi" required>
                     </div>
                     <div class="form-group">
                         <label for="f_qa">NO QA FILE</label>
-                        <input type="text" id="f_qa" placeholder="">
+                        <input type="text" id="f_qa">
                     </div>
-
                     <div class="form-group">
                         <label for="f_sample_num">SAMPLE #</label>
-                        <input type="text" id="f_sample_num" placeholder="0" required>
+                        <input type="text" id="f_sample_num" required>
                     </div>
                     <div class="form-group">
                         <label for="f_tahun">TAHUN</label>
                         <input type="number" id="f_tahun" value="2026" required>
                     </div>
-
                     <div class="form-group">
                         <label for="f_style">STYLE</label>
-                        <input type="text" id="f_style" placeholder="Contoh: THERMAL GRIP 2027" required>
+                        <input type="text" id="f_style" required>
                     </div>
                     <div class="form-group">
                         <label for="f_color">COLOR</label>
-                        <input type="text" id="f_color" placeholder="Contoh: Black/White" required>
+                        <input type="text" id="f_color" required>
                     </div>
-
                     <div class="form-group">
                         <label for="f_qty">QTY</label>
-                        <input type="number" id="f_qty" placeholder="0" required>
+                        <input type="number" id="f_qty" required>
                     </div>
                     <div class="form-group">
                         <label for="f_uom">UOM</label>
@@ -494,26 +583,20 @@
                             <option value="PCS">PCS</option>
                         </select>
                     </div>
-
                     <div class="form-group">
-                        <label for="f_size">SIZE SAMPLE <span class="abu">(Ketik untuk tambah baru)</span></label>
-                        <input type="text" id="f_size" list="list_size" placeholder="Contoh: M / 9" required>
-                        <datalist id="list_size">
-                            </datalist>
+                        <label for="f_size">SIZE SAMPLE</label>
+                        <input type="text" id="f_size" list="list_size" required>
+                        <datalist id="list_size"></datalist>
                     </div>
-
                     <div class="form-group">
-                        <label for="f_app_date">APPROVED DATE <span class="abu">(Opsional)</span></label>
+                        <label for="f_app_date">APPROVED DATE</label>
                         <input type="date" id="f_app_date">
                     </div>
-
                     <div class="form-group full-width">
-                        <label for="f_remark">REMARK (Catatan Tambahan) <span class="abu">(Opsional)</span></label>
-                        <textarea id="f_remark" rows="3" placeholder="Masukkan remark sample"></textarea>
+                        <label for="f_remark">REMARK (Catatan Tambahan)</label>
+                        <textarea id="f_remark" rows="3"></textarea>
                     </div>
-
                 </div>
-
                 <div class="modal-footer">
                     <button type="button" id="btnBatal" class="btn-sekunder">Batal</button>
                     <button type="submit" id="btnSimpan" class="btn-utama">Simpan Register</button>
@@ -523,11 +606,119 @@
     </div>
 
 
+    <!-- ================= SECTION 6: MODAL POP-UP (+PINJAM GLOVE) ================= -->
+    <div id="pinjamModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="border-color: #388bfd;">
+            <div class="modal-header">
+                <h3 class="biru">➕ Form Transaksi Pinjam Glove</h3>
+                <button id="closePinjamModal" class="btn-sekunder" style="padding: 4px 10px;">✕</button>
+            </div>
+            
+            <form id="formPinjam">
+                <input type="hidden" id="pinjamIndex" value="-1">
+                <div class="form-grid">
+                    
+                    <div class="form-group">
+                        <label for="p_tgl">TGL DI PINJAM</label>
+                        <input type="date" id="p_tgl" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="p_idcard">ID CARD OPERATOR <span class="biru">(Wajib Scan ID Card)</span></label>
+                        <input type="text" id="p_idcard" class="idcard-field" placeholder="Scan kartu RFID karyawan..." required autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="p_nama">NAMA PEMINJAM</label>
+                        <input type="text" id="p_nama" placeholder="Nama otomatis terdeteksi..." readonly style="background:#21262d; color:#8b949e;">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="p_rfid">SCAN RFID TAG GLOVE <span class="hijau">(Mencari Item...)</span></label>
+                        <input type="text" id="p_rfid" class="rfid-field" placeholder="Scan tag pada unit glove..." required autocomplete="off">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="p_note">NOTE (Alasan / Keperluan Pinjam)</label>
+                        <textarea id="p_note" rows="2" placeholder="Tulis catatan peminjaman secara lengkap..." required></textarea>
+                    </div>
+
+                    <!-- Autoload Form Terkunci -->
+                    <div class="form-group"><label>TYPE</label><input type="text" id="p_type" readonly style="background:#1f242c; color:#8b949e;"></div>
+                    <div class="form-group"><label>BUYER</label><input type="text" id="p_buyer" readonly style="background:#1f242c; color:#8b949e;"></div>
+                    <div class="form-group"><label>POSISI</label><input type="text" id="p_posisi" readonly style="background:#1f242c; color:#8b949e;"></div>
+                    <div class="form-group"><label>NO QA FILE</label><input type="text" id="p_qa" readonly style="background:#1f242c; color:#8b949e;"></div>
+                    <div class="form-group"><label>SAMPLE #</label><input type="text" id="p_sample_num" readonly style="background:#1f242c; color:#8b949e;"></div>
+                    <div class="form-group"><label>TAHUN</label><input type="text" id="p_tahun" readonly style="background:#1f242c; color:#8b949e;"></div>
+                    <div class="form-group full-width"><label>STYLE</label><input type="text" id="p_style" readonly style="background:#1f242c; color:#8b949e;"></div>
+                    <div class="form-group"><label>COLOR</label><input type="text" id="p_color" readonly style="background:#1f242c; color:#8b949e;"></div>
+                    <div class="form-group"><label>QTY</label><input type="text" id="p_qty" readonly style="background:#1f242c; color:#8b949e;"></div>
+                    <div class="form-group"><label>UOM</label><input type="text" id="p_uom" readonly style="background:#1f242c; color:#8b949e;"></div>
+                    <div class="form-group"><label>SIZE SAMPLE</label><input type="text" id="p_size" readonly style="background:#1f242c; color:#8b949e;"></div>
+                    <div class="form-group"><label>APPROVED DATE</label><input type="text" id="p_app_date" readonly style="background:#1f242c; color:#8b949e;"></div>
+                    <div class="form-group full-width"><label>REMARK</label><input type="text" id="p_remark" readonly style="background:#1f242c; color:#8b949e;"></div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnBatalPinjam" class="btn-sekunder">Batal</button>
+                    <button type="submit" class="btn-utama" style="background-color: #1f6feb;">Eksekusi Pinjam</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================= SECTION 7: MODAL POP-UP (GLOVE KEMBALI) ================= -->
+    <div id="kembaliModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="border-color: #ffbc42;">
+            <div class="modal-header">
+                <h3 class="kuning">🔄 Pengembalian Tag Glove</h3>
+                <button id="closeKembaliModal" class="btn-sekunder" style="padding: 4px 10px;">✕</button>
+            </div>
+            
+            <div class="form-group full-width" style="margin-bottom: 15px;">
+                <label>SCAN RFID TAG GLOVE UNTUK DIKEMBALIKAN</label>
+                <input type="text" id="k_scan_rfid" class="rfid-field" placeholder="Scan tag unit glove di sini..." autocomplete="off">
+            </div>
+
+            <div id="kembaliInfoBox" style="display: none;">
+                <span class="abu" style="font-size:11px; text-transform:uppercase;">Detail Info Glove (Font Kecil):</span>
+                <p style="font-size: 12px; margin: 5px 0; color: #c9d1d9;">
+                    Type: <span id="k_type" class="abu"></span> | 
+                    Buyer: <span id="k_buyer" class="abu"></span> | 
+                    Sample #: <span id="k_sample_num" class="abu"></span> | 
+                    Tahun: <span id="k_tahun" class="abu"></span><br>
+                    Style: <span id="k_style" class="abu"></span><br>
+                    Color: <span id="k_color" class="abu"></span> | 
+                    Qty: <span id="k_qty" class="abu"></span> <span id="k_uom" class="abu"></span> | 
+                    Size: <span id="k_size" class="abu"></span><br>
+                    Approved: <span id="k_app_date" class="abu"></span> | 
+                    Remark: <span id="k_remark" class="abu"></span>
+                </p>
+
+                <!-- Highlight Font Besar Lokasi Pengembalian -->
+                <div class="highlight-box">
+                    <div>
+                        <label style="font-size: 11px; color: #8b949e;">KEMBALIKAN KE POSISI (RAK):</label>
+                        <div id="k_posisi" class="highlight-large"></div>
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; color: #8b949e;">NOMOR QA FILE:</label>
+                        <div id="k_qa" class="highlight-large"></div>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="margin-top:15px; padding-top:10px;">
+                    <button id="btnProsesKembali" class="btn-utama" style="background-color: #d29922; border-color: #bb861c; width: 100%;">Konfirmasi Pengembalian Selesai</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script>
-        // ===================================================
-        // 1. KODE FIREBASE CONFIG (PASTIKAN TETAP TERISI)
-        // ===================================================
-const firebaseConfig = {
+        // Config Firebase 
+        const firebaseConfig = {
   apiKey: "AIzaSyCq2b73RQ21CgNWRiIeVvveoPWunMZGjno",
   authDomain: "sample-adira.firebaseapp.com",
   projectId: "sample-adira",
@@ -544,154 +735,102 @@ const firebaseConfig = {
             "emailrekan2@gmail.com",
             "emailrekan3@gmail.com"
         ];
+        // Database ID Card Karyawan/Operator Internal
+        const databaseIDCard = {
+            "99887766": "Vitriyani",
+            "11223344": "Helmina",
+            "55667788": "Arlita",
+            "12121212": "Vanny"
+        };
 
-        // --- MANAJEMEN HALAMAN ---
+        // DOM Setup
         const loginPage = document.getElementById('loginPage');
         const dashboardPage = document.getElementById('dashboardPage');
         const gloveKeepingPage = document.getElementById('gloveKeepingPage');
+        const peminjamanPage = document.getElementById('peminjamanPage');
         const userDisplayName = document.getElementById('userDisplayName');
 
+        let databaseGlove = JSON.parse(localStorage.getItem('adira_glove_db')) || [];
+        let opsiBuyer = JSON.parse(localStorage.getItem('adira_opsi_buyer')) || ["Callaway", "TaylorMade", "Titleist"];
+        let opsiSize = JSON.parse(localStorage.getItem('adira_opsi_size')) || ["S", "M", "L", "XL"];
+
+        // Auth Listener
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 if (daftarEmailDiterima.includes(user.email)) {
                     loginPage.style.display = 'none';
-                    if(gloveKeepingPage.style.display !== 'block') {
+                    if(gloveKeepingPage.style.display !== 'block' && peminjamanPage.style.display !== 'block') {
                         dashboardPage.style.display = 'block';
                     }
                     userDisplayName.innerText = "Halo, " + user.displayName;
                     renderTabelGlove();
-                    updateSmartDatalist(); // Inisialisasi awal datalist agar pilihan langsung keluar
+                    renderTabelPinjam();
                 } else {
-                    alert("Akses Ditolak! Email belum terdaftar.");
+                    alert("Akses Ditolak!");
                     firebase.auth().signOut();
                 }
             } else {
                 dashboardPage.style.display = 'none';
                 gloveKeepingPage.style.display = 'none';
+                peminjamanPage.style.display = 'none';
                 loginPage.style.display = 'flex';
             }
         });
 
-        document.getElementById('toGloveKeeping').addEventListener('click', () => {
-            dashboardPage.style.display = 'none';
-            gloveKeepingPage.style.display = 'block';
-            renderTabelGlove();
-            updateSmartDatalist(); // Memastikan list buyer ter-update saat masuk ke submenu
-        });
-        document.getElementById('backToDash').addEventListener('click', () => {
-            gloveKeepingPage.style.display = 'none';
-            dashboardPage.style.display = 'block';
-        });
-
-        document.getElementById('loginBtn').addEventListener('click', () => {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth().signInWithPopup(provider);
-        });
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            firebase.auth().signOut();
-        });
+        // Navigasi Menu
+        document.getElementById('toGloveKeeping').addEventListener('click', () => { dashboardPage.style.display = 'none'; gloveKeepingPage.style.display = 'block'; renderTabelGlove(); });
+        document.getElementById('toPeminjaman').addEventListener('click', () => { dashboardPage.style.display = 'none'; peminjamanPage.style.display = 'block'; renderTabelPinjam(); });
+        document.getElementById('backToDash').addEventListener('click', () => { gloveKeepingPage.style.display = 'none'; dashboardPage.style.display = 'block'; });
+        document.getElementById('backToDash2').addEventListener('click', () => { peminjamanPage.style.display = 'none'; dashboardPage.style.display = 'block'; });
+        document.getElementById('loginBtn').addEventListener('click', () => firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()));
+        document.getElementById('logoutBtn').addEventListener('click', () => firebase.auth().signOut());
 
 
         // ===================================================
-        // 2. LOGIKA UTAMA SUB-SISTEM GLOVE KEEPING
+        // LOGIKA CORE: GLOVE KEEPING MANAJEMEN
         // ===================================================
         const addModal = document.getElementById('addModal');
         const formGlove = document.getElementById('formGlove');
-        const modalTitle = document.getElementById('modalTitle');
-        const btnSimpan = document.getElementById('btnSimpan');
-        const editIndexInput = document.getElementById('editIndex');
         
-        let databaseGlove = JSON.parse(localStorage.getItem('adira_glove_db')) || [];
-        let opsiBuyer = JSON.parse(localStorage.getItem('adira_opsi_buyer')) || ["Callaway", "TaylorMade", "Titleist"];
-        let opsiSize = JSON.parse(localStorage.getItem('adira_opsi_size')) || ["S", "M", "L", "XL", "22", "23", "24", "25"];
-
         document.getElementById('openAddModal').addEventListener('click', () => {
             formGlove.reset();
-            editIndexInput.value = "-1";
-            modalTitle.innerText = "+ Register Item Glove Keeping Baru";
-            btnSimpan.innerText = "Simpan Register";
-            
-            // PERBAIKAN 1: Input RFID tetap aktif (bisa discan/ketik ulang)
-            document.getElementById('f_rfid').disabled = false; 
+            document.getElementById('editIndex').value = "-1";
+            document.getElementById('modalTitle').innerText = "+ Register Item Glove Keeping Baru";
+            document.getElementById('f_rfid').disabled = false;
             addModal.style.display = 'flex';
+            updateSmartDatalist();
             setTimeout(() => document.getElementById('f_rfid').focus(), 100);
         });
-        
-        const tutupModal = () => { addModal.style.display = 'none'; };
-        document.getElementById('closeModal').addEventListener('click', tutupModal);
-        document.getElementById('btnBatal').addEventListener('click', tutupModal);
+        document.getElementById('closeModal').addEventListener('click', () => addModal.style.display = 'none');
+        document.getElementById('btnBatal').addEventListener('click', () => addModal.style.display = 'none');
 
-        // PERBAIKAN 3: Sinkronisasi dan render data list buyer & size agar terbaca di form
         function updateSmartDatalist() {
-            const dlBuyer = document.getElementById('list_buyer');
-            const dlSize = document.getElementById('list_size');
-            
-            dlBuyer.innerHTML = opsiBuyer.map(b => `<option value="${b}">`).join('');
-            dlSize.innerHTML = opsiSize.map(s => `<option value="${s}">`).join('');
+            document.getElementById('list_buyer').innerHTML = opsiBuyer.map(b => `<option value="${b}">`).join('');
+            document.getElementById('list_size').innerHTML = opsiSize.map(s => `<option value="${s}">`).join('');
         }
 
         formGlove.addEventListener('submit', (e) => {
             e.preventDefault();
-
             const rfidValue = document.getElementById('f_rfid').value.trim();
-            const buyerValue = document.getElementById('f_buyer').value.trim();
-            const sizeValue = document.getElementById('f_size').value.trim();
-            const idx = parseInt(editIndexInput.value);
+            const idx = parseInt(document.getElementById('editIndex').value);
 
-            // PERBAIKAN 2: Validasi Duplikasi RFID (1 RFID = 1 Glove)
-            const isDuplicate = databaseGlove.some((item, index) => {
-                // Jika "Add" baru (idx === -1), cek semua baris. 
-                // Jika "Edit", abaikan baris yang sedang diedit itu sendiri.
-                return item.rfid === rfidValue && index !== idx;
-            });
-
-            if (isDuplicate) {
-                alert(`⚠️ Gagal Simpan! RFID "${rfidValue}" sudah terdaftar pada glove lain di database.`);
-                document.getElementById('f_rfid').focus();
-                document.getElementById('f_rfid').select();
-                return; // Batalkan proses simpan
-            }
-
-            // Simpan otomatis ke daftar autocomplete jika ada entri teks baru
-            if(buyerValue && !opsiBuyer.includes(buyerValue)) {
-                opsiBuyer.push(buyerValue);
-                localStorage.setItem('adira_opsi_buyer', JSON.stringify(opsiBuyer));
-            }
-            if(sizeValue && !opsiSize.includes(sizeValue)) {
-                opsiSize.push(sizeValue);
-                localStorage.setItem('adira_opsi_size', JSON.stringify(opsiSize));
-            }
+            const isDuplicate = databaseGlove.some((item, index) => item.rfid === rfidValue && index !== idx);
+            if (isDuplicate) { alert("⚠️ RFID sudah terdaftar!"); return; }
 
             if (idx === -1) {
-                // Proses Add Data Baru
-                const itemBaru = {
-                    rfid: rfidValue,
-                    type: document.getElementById('f_type').value,
-                    buyer: buyerValue,
-                    posisi: document.getElementById('f_posisi').value.trim(),
-                    qa: document.getElementById('f_qa').value.trim() || '-',
-                    sampleNum: document.getElementById('f_sample_num').value.trim(),
-                    tahun: document.getElementById('f_tahun').value,
-                    style: document.getElementById('f_style').value.trim(),
-                    color: document.getElementById('f_color').value.trim(),
-                    qty: document.getElementById('f_qty').value,
-                    uom: document.getElementById('f_uom').value,
-                    size: sizeValue,
-                    appDate: document.getElementById('f_app_date').value || '-',
-                    remark: document.getElementById('f_remark').value.trim() || '-',
-                    isDipinjam: "TIDAK",
-                    peminjam: "-",
-                    note: "-",
-                    tglPinjam: "-",
-                    history: "-"
-                };
-                databaseGlove.unshift(itemBaru);
-                alert("Aset Glove berhasil didaftarkan!");
+                databaseGlove.unshift({
+                    rfid: rfidValue, type: document.getElementById('f_type').value, buyer: document.getElementById('f_buyer').value.trim(),
+                    posisi: document.getElementById('f_posisi').value.trim(), qa: document.getElementById('f_qa').value.trim() || '-',
+                    sampleNum: document.getElementById('f_sample_num').value.trim(), tahun: document.getElementById('f_tahun').value,
+                    style: document.getElementById('f_style').value.trim(), color: document.getElementById('f_color').value.trim(),
+                    qty: document.getElementById('f_qty').value, uom: document.getElementById('f_uom').value,
+                    size: document.getElementById('f_size').value.trim(), appDate: document.getElementById('f_app_date').value || '-',
+                    remark: document.getElementById('f_remark').value.trim() || '-', isDipinjam: "TIDAK", peminjam: "-", note: "-", tglPinjam: "-", history: "-"
+                });
             } else {
-                // Proses Edit Data Lama
-                databaseGlove[idx].rfid = rfidValue; // Simpan nilai RFID baru hasil scan ulang
+                databaseGlove[idx].rfid = rfidValue;
                 databaseGlove[idx].type = document.getElementById('f_type').value;
-                databaseGlove[idx].buyer = buyerValue;
+                databaseGlove[idx].buyer = document.getElementById('f_buyer').value.trim();
                 databaseGlove[idx].posisi = document.getElementById('f_posisi').value.trim();
                 databaseGlove[idx].qa = document.getElementById('f_qa').value.trim() || '-';
                 databaseGlove[idx].sampleNum = document.getElementById('f_sample_num').value.trim();
@@ -700,32 +839,24 @@ const firebaseConfig = {
                 databaseGlove[idx].color = document.getElementById('f_color').value.trim();
                 databaseGlove[idx].qty = document.getElementById('f_qty').value;
                 databaseGlove[idx].uom = document.getElementById('f_uom').value;
-                databaseGlove[idx].size = sizeValue;
+                databaseGlove[idx].size = document.getElementById('f_size').value.trim();
                 databaseGlove[idx].appDate = document.getElementById('f_app_date').value || '-';
                 databaseGlove[idx].remark = document.getElementById('f_remark').value.trim() || '-';
-                alert("Data aset berhasil diperbarui!");
             }
-
             localStorage.setItem('adira_glove_db', JSON.stringify(databaseGlove));
             renderTabelGlove();
-            updateSmartDatalist();
-            tutupModal();
+            addModal.style.display = 'none';
         });
 
         window.editGlove = function(index) {
             const item = databaseGlove[index];
-            editIndexInput.value = index;
-            modalTitle.innerText = "📝 Edit Data Glove Keeping";
-            btnSimpan.innerText = "Simpan Perubahan";
-
-            // PERBAIKAN 1: Memastikan kolom input RFID tidak dinonaktifkan (bisa dipindah fokus/scan ulang)
+            document.getElementById('editIndex').value = index;
+            document.getElementById('modalTitle').innerText = "📝 Edit Data Glove Keeping";
             document.getElementById('f_rfid').value = item.rfid;
-            document.getElementById('f_rfid').disabled = false; 
-            
             document.getElementById('f_type').value = item.type;
             document.getElementById('f_buyer').value = item.buyer;
             document.getElementById('f_posisi').value = item.posisi;
-            document.getElementById('f_qa').value = item.qa === '-' ? '' : item.qa;
+            document.getElementById('f_qa').value = item.qa==='-'?'':item.qa;
             document.getElementById('f_sample_num').value = item.sampleNum;
             document.getElementById('f_tahun').value = item.tahun;
             document.getElementById('f_style').value = item.style;
@@ -733,81 +864,301 @@ const firebaseConfig = {
             document.getElementById('f_qty').value = item.qty;
             document.getElementById('f_uom').value = item.uom;
             document.getElementById('f_size').value = item.size;
-            document.getElementById('f_app_date').value = item.appDate === '-' ? '' : item.appDate;
-            document.getElementById('f_remark').value = item.remark === '-' ? '' : item.remark;
-
+            document.getElementById('f_app_date').value = item.appDate==='-'?'':item.appDate;
+            document.getElementById('f_remark').value = item.remark==='-'?'':item.remark;
             addModal.style.display = 'flex';
         };
 
         window.deleteGlove = function(index) {
-            if(confirm(`Apakah Anda yakin ingin menghapus aset dengan RFID "${databaseGlove[index].rfid}"?`)) {
-                databaseGlove.splice(index, 1);
-                localStorage.setItem('adira_glove_db', JSON.stringify(databaseGlove));
-                renderTabelGlove();
-            }
+            if(confirm("Hapus aset?")) { databaseGlove.splice(index, 1); localStorage.setItem('adira_glove_db', JSON.stringify(databaseGlove)); renderTabelGlove(); }
         };
 
         function renderTabelGlove() {
             const tableBody = document.getElementById('tableBodyGlove');
-            const totalItems = document.getElementById('totalItems');
-            
-            let totalKeeping = 0, pinjamKeeping = 0;
-            let totalApproved = 0, pinjamApproved = 0;
-            let totalDuplikat = 0, pinjamDuplikat = 0;
-
+            let tk=0, pk=0, ta=0, pa=0, td=0, pd=0;
             databaseGlove.forEach(item => {
-                if(item.type === "Keeping") {
-                    totalKeeping++;
-                    if(item.isDipinjam === "YA") pinjamKeeping++;
-                } else if(item.type === "Sample Approved") {
-                    totalApproved++;
-                    if(item.isDipinjam === "YA") pinjamApproved++;
-                } else if(item.type === "Duplikat Sample") {
-                    totalDuplikat++;
-                    if(item.isDipinjam === "YA") pinjamDuplikat++;
-                }
+                if(item.type==="Keeping") { tk++; if(item.isDipinjam==="YA") pk++; }
+                else if(item.type==="Sample Approved") { ta++; if(item.isDipinjam==="YA") pa++; }
+                else if(item.type==="Duplikat Sample") { td++; if(item.isDipinjam==="YA") pd++; }
             });
-
-            document.getElementById('resKeeping').innerHTML = `${pinjamKeeping} dipinjam / ${totalKeeping} total glove`;
-            document.getElementById('resApproved').innerHTML = `${pinjamApproved} dipinjam / ${totalApproved} total glove`;
-            document.getElementById('resDuplikat').innerHTML = `${pinjamDuplikat} dipinjam / ${totalDuplikat} total glove`;
-            
-            totalItems.innerText = `Total: ${databaseGlove.length} baris aset terdaftar.`;
-
-            if (databaseGlove.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="20" style="text-align: center; color: #8b949e; padding: 30px;">Belum ada data glove terdaftar. Klik + Add untuk menambahkan data baru.</td></tr>`;
-                return;
-            }
+            document.getElementById('resKeeping').innerHTML = `${pk} dipinjam / ${tk} total glove`;
+            document.getElementById('resApproved').innerHTML = `${pa} dipinjam / ${ta} total glove`;
+            document.getElementById('resDuplikat').innerHTML = `${pd} dipinjam / ${td} total glove`;
+            document.getElementById('totalItems').innerText = `Total: ${databaseGlove.length} baris aset terdaftar.`;
 
             tableBody.innerHTML = databaseGlove.map((item, index) => `
                 <tr>
-                    <td class="hijau" style="font-family: monospace; font-weight: bold;">${item.rfid}</td>
+                    <td class="hijau">${item.rfid}</td><td>${item.type}</td><td>${item.buyer}</td><td>${item.posisi}</td>
+                    <td>${item.qa}</td><td>${item.sampleNum}</td><td>${item.tahun}</td><td>${item.style}</td>
+                    <td>${item.color}</td><td>${item.qty}</td><td>${item.uom}</td><td>${item.size}</td>
+                    <td>${item.appDate}</td><td>${item.remark}</td><td><span class="${item.isDipinjam==='YA'?'merah':'hijau'}">${item.isDipinjam}</span></td>
+                    <td>${item.peminjam}</td><td>${item.note}</td><td>${item.tglPinjam}</td><td>${item.history}</td>
+                    <td style="position: sticky; right: 0; background: #161b22;">
+                        <button class="btn-edit" onclick="editGlove(${index})">Edit</button>
+                        <button class="btn-danger" onclick="deleteGlove(${index})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+
+        // ===================================================
+        // LOGIKA CORE: TRANSAKSI SUB-SISTEM PEMINJAMAN GLOVE
+        // ===================================================
+        const pinjamModal = document.getElementById('pinjamModal');
+        const formPinjam = document.getElementById('formPinjam');
+        const kembaliModal = document.getElementById('kembaliModal');
+
+        // Buka Modal Pinjam (+Pinjam)
+        document.getElementById('openPinjamModal').addEventListener('click', () => {
+            formPinjam.reset();
+            document.getElementById('pinjamIndex').value = "-1";
+            
+            // Set default tanggal hari ini
+            const hariIni = new Date().toISOString().split('T')[0];
+            document.getElementById('p_tgl').value = hariIni;
+
+            pinjamModal.style.display = 'flex';
+            setTimeout(() => document.getElementById('p_idcard').focus(), 100);
+        });
+
+        document.getElementById('closePinjamModal').addEventListener('click', () => pinjamModal.style.display = 'none');
+        document.getElementById('btnBatalPinjam').addEventListener('click', () => pinjamModal.style.display = 'none');
+
+        // Event listener saat ID CARD di-scan/ketik
+        document.getElementById('p_idcard').addEventListener('input', (e) => {
+            const idCardScanned = e.target.value.trim();
+            if(databaseIDCard[idCardScanned]) {
+                document.getElementById('p_nama').value = databaseIDCard[idCardScanned];
+            } else if (idCardScanned.length >= 6) {
+                document.getElementById('p_nama').value = "Guest / Operator Baru (" + idCardScanned + ")";
+            } else {
+                document.getElementById('p_nama').value = "";
+            }
+        });
+
+        // Event listener saat RFID TAG GLOVE di-scan
+        document.getElementById('p_rfid').addEventListener('input', (e) => {
+            const rfidScanned = e.target.value.trim();
+            const foundIdx = databaseGlove.findIndex(item => item.rfid === rfidScanned);
+
+            if(foundIdx !== -1) {
+                const item = databaseGlove[foundIdx];
+                if(item.isDipinjam === "YA") {
+                    alert("⚠️ Gagal! Glove ini sedang berstatus dipinjam oleh: " + item.peminjam);
+                    e.target.value = "";
+                    return;
+                }
+                document.getElementById('pinjamIndex').value = foundIdx;
+                document.getElementById('p_type').value = item.type;
+                document.getElementById('p_buyer').value = item.buyer;
+                document.getElementById('p_posisi').value = item.posisi;
+                document.getElementById('p_qa').value = item.qa;
+                document.getElementById('p_sample_num').value = item.sampleNum;
+                document.getElementById('p_tahun').value = item.tahun;
+                document.getElementById('p_style').value = item.style;
+                document.getElementById('p_color').value = item.color;
+                document.getElementById('p_qty').value = item.qty;
+                document.getElementById('p_uom').value = item.uom;
+                document.getElementById('p_size').value = item.size;
+                document.getElementById('p_app_date').value = item.appDate;
+                document.getElementById('p_remark').value = item.remark;
+            } else {
+                // Reset form autoload jika rfid tidak valid
+                document.getElementById('pinjamIndex').value = "-1";
+                ['type','buyer','posisi','qa','sample_num','tahun','style','color','qty','uom','size','app_date','remark'].forEach(f => {
+                    document.getElementById('p_' + f).value = "";
+                });
+            }
+        });
+
+        // Submit Form Peminjaman
+        formPinjam.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const targetIdx = parseInt(document.getElementById('pinjamIndex').value);
+
+            if(targetIdx === -1) {
+                alert("⚠️ Gagal! Tag RFID Glove tidak ditemukan dalam database asset.");
+                return;
+            }
+
+            // Update status asset di database master
+            databaseGlove[targetIdx].isDipinjam = "YA";
+            databaseGlove[targetIdx].peminjam = document.getElementById('p_nama').value;
+            databaseGlove[targetIdx].tglPinjam = document.getElementById('p_tgl').value;
+            databaseGlove[targetIdx].note = document.getElementById('p_note').value.trim();
+
+            localStorage.setItem('adira_glove_db', JSON.stringify(databaseGlove));
+            alert("Transaksi peminjaman berhasil dicatat!");
+            
+            renderTabelPinjam();
+            pinjamModal.style.display = 'none';
+        });
+
+        // EDIT DATA PEMINJAMAN (Hanya Mengedit Tanggal & Catatan Logistik)
+        window.editPeminjaman = function(masterIndex) {
+            const item = databaseGlove[masterIndex];
+            document.getElementById('pinjamIndex').value = masterIndex;
+            
+            document.getElementById('p_tgl').value = item.tglPinjam;
+            document.getElementById('p_idcard').value = "BY-PASSED";
+            document.getElementById('p_nama').value = item.peminjam;
+            document.getElementById('p_rfid').value = item.rfid;
+            document.getElementById('p_note').value = item.note;
+
+            document.getElementById('p_type').value = item.type;
+            document.getElementById('p_buyer').value = item.buyer;
+            document.getElementById('p_posisi').value = item.posisi;
+            document.getElementById('p_qa').value = item.qa;
+            document.getElementById('p_sample_num').value = item.sampleNum;
+            document.getElementById('p_tahun').value = item.tahun;
+            document.getElementById('p_style').value = item.style;
+            document.getElementById('p_color').value = item.color;
+            document.getElementById('p_qty').value = item.qty;
+            document.getElementById('p_uom').value = item.uom;
+            document.getElementById('p_size').value = item.size;
+            document.getElementById('p_app_date').value = item.appDate;
+            document.getElementById('p_remark').value = item.remark;
+
+            pinjamModal.style.display = 'flex';
+        };
+
+        // MODAL PROSES GLOVE KEMBALI
+        let kembaliGlobalIdx = -1;
+        document.getElementById('openKembaliModal').addEventListener('click', () => {
+            document.getElementById('k_scan_rfid').value = "";
+            document.getElementById('kembaliInfoBox').style.display = 'none';
+            kembaliGlobalIdx = -1;
+            kembaliModal.style.display = 'flex';
+            setTimeout(() => document.getElementById('k_scan_rfid').focus(), 100);
+        });
+        document.getElementById('closeKembaliModal').addEventListener('click', () => kembaliModal.style.display = 'none');
+
+        // Deteksi scan pengembalian
+        document.getElementById('k_scan_rfid').addEventListener('input', (e) => {
+            const rfidScanned = e.target.value.trim();
+            const foundIdx = databaseGlove.findIndex(item => item.rfid === rfidScanned);
+
+            if(foundIdx !== -1) {
+                const item = databaseGlove[foundIdx];
+                if(item.isDipinjam !== "YA") {
+                    alert("⚠️ Unit Glove ditemukan, namun statusnya TIDAK sedang dipinjam.");
+                    return;
+                }
+                kembaliGlobalIdx = foundIdx;
+                
+                // Isi info text kecil
+                document.getElementById('k_type').innerText = item.type;
+                document.getElementById('k_buyer').innerText = item.buyer;
+                document.getElementById('k_sample_num').innerText = item.sampleNum;
+                document.getElementById('k_tahun').innerText = item.tahun;
+                document.getElementById('k_style').innerText = item.style;
+                document.getElementById('k_color').innerText = item.color;
+                document.getElementById('k_qty').innerText = item.qty;
+                document.getElementById('k_uom').innerText = item.uom;
+                document.getElementById('k_size').innerText = item.size;
+                document.getElementById('k_app_date').innerText = item.appDate;
+                document.getElementById('k_remark').innerText = item.remark;
+
+                // Highlight Lokasi Penempatan (Font Besar)
+                document.getElementById('k_posisi').innerText = item.posisi;
+                document.getElementById('k_qa').innerText = item.qa;
+
+                document.getElementById('kembaliInfoBox').style.display = 'block';
+            } else {
+                document.getElementById('kembaliInfoBox').style.display = 'none';
+                kembaliGlobalIdx = -1;
+            }
+        });
+
+        // Eksekusi Tombol Konfirmasi Pengembalian Selesai
+        document.getElementById('btnProsesHealthy') || document.getElementById('btnProsesKembali').addEventListener('click', () => {
+            if(kembaliGlobalIdx === -1) return;
+
+            const item = databaseGlove[kembaliGlobalIdx];
+            
+            // Format tanggal pengembalian hari ini (DD/MM/YY)
+            const tgl = new Date();
+            const formatTgl = String(tgl.getDate()).padStart(2, '0') + '/' + String(tgl.getMonth() + 1).padStart(2, '0') + '/' + String(tgl.getFullYear()).substring(2);
+            
+            // Buat log kalimat history baru
+            const entriBaru = `${item.peminjam} ${formatTgl}`;
+            let historyLama = item.history === '-' ? '' : item.history;
+
+            // Gabungkan dengan urutan tgl pengembalian terbaru berada di AWAL kalimat
+            let historyBaru = historyLama ? `${entriBaru} ; ${historyLama}` : entriBaru;
+
+            // Update status objek ke master database
+            databaseGlove[kembaliGlobalIdx].isDipinjam = "TIDAK";
+            databaseGlove[kembaliGlobalIdx].history = historyBaru;
+            
+            // Clear log peminjam aktif
+            databaseGlove[kembaliGlobalIdx].peminjam = "-";
+            databaseGlove[kembaliGlobalIdx].note = "-";
+            databaseGlove[kembaliGlobalIdx].tglPinjam = "-";
+
+            localStorage.setItem('adira_glove_db', JSON.stringify(databaseGlove));
+            alert(`✅ Sukses! Selesai dikembalikan ke rak "${item.posisi}". History diperbarui.`);
+            
+            renderTabelPinjam();
+            kembaliModal.style.display = 'none';
+        });
+
+        // RENDER DATA TABEL LIST PINJAMAN
+        function renderTabelPinjam() {
+            const tableBody = document.getElementById('tableBodyPinjam');
+            let pk = 0, pa = 0, pd = 0;
+
+            // Hitung data yang dipinjam saja
+            databaseGlove.forEach(item => {
+                if(item.isDipinjam === "YA") {
+                    if(item.type === "Keeping") pk++;
+                    if(item.type === "Sample Approved") pa++;
+                    if(item.type === "Duplikat Sample") pd++;
+                }
+            });
+
+            document.getElementById('resPinjamKeeping').innerText = `${pk} Glove`;
+            document.getElementById('resPinjamApproved').innerText = `${pa} Glove`;
+            document.getElementById('resPinjamDuplikat').innerText = `${pd} Glove`;
+
+            // Filter baris array: hanya ambil yang .isDipinjam === "YA"
+            const dataDipinjam = databaseGlove.map((item, originalIndex) => ({...item, originalIndex})).filter(item => item.isDipinjam === "YA");
+            
+            document.getElementById('totalPinjamItems').innerText = `Menampilkan ${dataDipinjam.length} item aktif yang sedang dipinjam.`;
+
+            if(dataDipinjam.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="19" style="text-align: center; color: #8b949e; padding: 30px;">🎉 Keren! Tidak ada glove yang sedang dipinjam saat ini. Semua aman di dalam rak.</td></tr>`;
+                return;
+            }
+
+            // Mapping baris sesuai dengan struktur urutan kolom yang diminta
+            tableBody.innerHTML = dataDipinjam.map(item => `
+                <tr>
+                    <td class="biru" style="font-weight: bold;">${item.tglPinjam}</td>
+                    <td><strong>${item.peminjam}</strong></td>
+                    <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; color: #ffbc42;">${item.note}</td>
+                    <td class="abu" style="font-size: 11px;">${item.history}</td>
+                    <td class="hijau" style="font-family: monospace;">${item.rfid}</td>
                     <td>${item.type}</td>
                     <td><strong>${item.buyer}</strong></td>
-                    <td>${item.posisi}</td>
+                    <td style="font-weight: bold; color: #4ade80;">${item.posisi}</td>
                     <td>${item.qa}</td>
                     <td>${item.sampleNum}</td>
                     <td>${item.tahun}</td>
                     <td>${item.style}</td>
                     <td>${item.color}</td>
                     <td>${item.qty}</td>
-                    <td><span style="font-size:11px; padding:2px 6px; background:#21262d; border-radius:4px;">${item.uom}</span></td>
+                    <td>${item.uom}</td>
                     <td><strong>${item.size}</strong></td>
                     <td>${item.appDate}</td>
-                    <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${item.remark}</td>
-                    <td><span class="${item.isDipinjam === 'YA' ? 'merah' : 'hijau'}">${item.isDipinjam}</span></td>
-                    <td>${item.peminjam}</td>
-                    <td>${item.note}</td>
-                    <td>${item.tglPinjam}</td>
-                    <td>${item.history}</td>
-                    <td style="text-align: center; position: sticky; right: 0; background: #161b22; z-index: 4; border-left: 1px solid #30363d;">
-                        <button class="btn-edit" onclick="editGlove(${index})">📝 Edit</button>
-                        <button class="btn-danger" onclick="deleteGlove(${index})">🗑️ Delete</button>
+                    <td>${item.remark}</td>
+                    <td style="text-align: center; position: sticky; right: 0; background: #161b22; border-left:1px solid #30363d;">
+                        <button class="btn-edit" onclick="editPeminjaman(${item.originalIndex})">📝 Edit</button>
                     </td>
                 </tr>
             `).join('');
         }
     </script>
-
 </body>
 </html>
