@@ -258,6 +258,16 @@
             overflow-y: auto;
             padding: 30px;
         }
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .modal-content::-webkit-scrollbar-track {
+            background: #161b22;
+        }
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -530,7 +540,7 @@
             <form id="formGlove">
                 <input type="hidden" id="editIndex" value="-1">
                 <div class="form-grid">
-                    <div class="form-group full-width">
+                    <div class="form-grid full-width">
                         <label for="f_rfid">ID RFID <span class="hijau">(Scan / Edit RFID Tag Glove)</span></label>
                         <input type="text" id="f_rfid" class="rfid-field" placeholder="Tempelkan/Scan tag ke reader..." required autocomplete="off">
                     </div>
@@ -724,6 +734,8 @@
 
         // Referensi Database Pusat
         const dbRef = firebase.database().ref('adira_glove_db');
+        // Referensi Database Pusat untuk Master Data RFID Karyawan (Online Cloud)
+        const dbKaryawanRef = firebase.database().ref('daftar_karyawan');
 
         const daftarEmailDiterima = [
             "arlitarahma.w@gmail.com",
@@ -732,14 +744,11 @@
             "emailrekan3@gmail.com"
         ];
 
-        // --- KANTONG RFID INTERNAL (localStorage) ---
-        let kantongRFID = JSON.parse(localStorage.getItem('kantongRFID')) || {
-            "99887766": "Vitriyani",
-            "11223344": "Helmina",
-            "55667788": "Arlita",
-            "12121212": "Vanny"
-        };
-        localStorage.setItem('kantongRFID', JSON.stringify(kantongRFID));
+        // Master Variabel Utama (diisi otomatis dari cloud Firebase)
+        let databaseGlove = [];
+        let kantongRFID = {}; // DISET KOSONG: Mengikuti request Anda agar bersih sejak awal
+        let opsiBuyer = JSON.parse(localStorage.getItem('adira_opsi_buyer')) || ["Callaway", "TaylorMade", "Titleist"];
+        let opsiSize = JSON.parse(localStorage.getItem('adira_opsi_size')) || ["S", "M", "L", "XL"];
 
         // DOM Setup
         const loginPage = document.getElementById('loginPage');
@@ -747,11 +756,6 @@
         const gloveKeepingPage = document.getElementById('gloveKeepingPage');
         const peminjamanPage = document.getElementById('peminjamanPage');
         const userDisplayName = document.getElementById('userDisplayName');
-
-        // Master Variabel Utama (diisi otomatis dari cloud Firebase)
-        let databaseGlove = [];
-        let opsiBuyer = JSON.parse(localStorage.getItem('adira_opsi_buyer')) || ["Callaway", "TaylorMade", "Titleist"];
-        let opsiSize = JSON.parse(localStorage.getItem('adira_opsi_size')) || ["S", "M", "L", "XL"];
 
         // Auth Listener & Sinkronisasi Database Realtime
         firebase.auth().onAuthStateChanged((user) => {
@@ -763,13 +767,18 @@
                     }
                     userDisplayName.innerText = "Halo, " + user.displayName;
 
-                    // AKTIFKAN LINK REALTIME DATABASE ONLINE
+                    // 1. Sinkronisasi Data Transaksi Glove
                     dbRef.on('value', (snapshot) => {
                         const dataCloud = snapshot.val();
-                        // Jika cloud kosong, gunakan fallback array kosong
                         databaseGlove = dataCloud ? Object.values(dataCloud) : [];
                         renderTabelGlove();
                         renderTabelPinjam();
+                    });
+
+                    // 2. Sinkronisasi Data Kantong RFID Karyawan Online Realtime
+                    dbKaryawanRef.on('value', (snapshot) => {
+                        const dataKaryawan = snapshot.val();
+                        kantongRFID = dataKaryawan ? dataKaryawan : {}; 
                     });
 
                 } else {
@@ -781,8 +790,9 @@
                 gloveKeepingPage.style.display = 'none';
                 peminjamanPage.style.display = 'none';
                 loginPage.style.display = 'flex';
-                // Putuskan listener database jika logout
+                // Putuskan semua listener database jika logout agar hemat kuota data Firebase
                 dbRef.off();
+                dbKaryawanRef.off();
             }
         });
 
@@ -1063,9 +1073,12 @@
                 return;
             }
 
+            // JIKA KARTU BARU (Belum ada di cloud), Simpan Realtime ke Node 'daftar_karyawan' di Firebase
             if (!kantongRFID[idCardVal]) {
                 kantongRFID[idCardVal] = namaVal;
-                localStorage.setItem('kantongRFID', JSON.stringify(kantongRFID));
+                dbKaryawanRef.set(kantongRFID)
+                    .then(() => console.log("Master RFID berhasil diperbarui online!"))
+                    .catch(err => console.error("Gagal update master RFID: ", err));
             }
 
             databaseGlove[itemIndex].isDipinjam = "YA";
