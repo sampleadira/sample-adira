@@ -853,72 +853,81 @@ dbRef.on('value', (snapshot) => {
             document.getElementById('list_size').innerHTML = opsiSize.map(s => `<option value="${s}">`).join('');
         }
 
-        formGlove.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const rfidValue = document.getElementById('f_rfid').value.trim();
-            const idx = parseInt(document.getElementById('editIndex').value);
-            const isDuplicate = databaseGlove.some((item, index) => item.rfid === rfidValue && index !== idx);
-            
-            if (isDuplicate) {
-                alert("⚠️ RFID sudah terdaftar!");
-                return;
-            }
+// EVENT SUBMIT FORM GLOVE
+formGlove.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const rfidValue = document.getElementById('f_rfid').value.trim();
+    const idx = parseInt(document.getElementById('editIndex').value);
+    const isDuplicate = databaseGlove.some((item, index) => item.rfid === rfidValue && index !== idx);
+    
+    if (isDuplicate) {
+        alert("⚠️ RFID sudah terdaftar!");
+        return;
+    }
 
-            // Siapkan objek data yang bersih tanpa menyertakan firebaseKey di dalamnya
-const gloveDataObj = {
-    rfid: rfidValue,
-    type: document.getElementById('f_type').value,
-    buyer: document.getElementById('f_buyer').value.trim(),
-    posisi: document.getElementById('f_posisi').value.trim(),
-    qa: document.getElementById('f_qa').value.trim() || '-',
-    sampleNum: document.getElementById('f_sample_num').value.trim(),
-    tahun: document.getElementById('f_tahun').value,
-    style: document.getElementById('f_style').value.trim(),
-    color: document.getElementById('f_color').value.trim(),
-    qty: document.getElementById('f_qty').value,
-    uom: document.getElementById('f_uom').value,
-    size: document.getElementById('f_size').value.trim(),
-    appDate: document.getElementById('f_app_date').value || '-',
-    remark: document.getElementById('f_remark').value.trim() || '-',
-    isDipinjam: idx === -1 ? "TIDAK" : databaseGlove[idx].isDipinjam,
-    peminjam: idx === -1 ? "-" : databaseGlove[idx].peminjam,
-    note: idx === -1 ? "-" : databaseGlove[idx].note,
-    tglPinjam: idx === -1 ? "-" : databaseGlove[idx].tglPinjam,
-    history: idx === -1 ? "-" : databaseGlove[idx].history
+    // Siapkan objek data yang bersih tanpa menyertakan firebaseKey di dalamnya
+    const gloveDataObj = {
+        rfid: rfidValue,
+        type: document.getElementById('f_type').value,
+        buyer: document.getElementById('f_buyer').value.trim(),
+        posisi: document.getElementById('f_posisi').value.trim(),
+        qa: document.getElementById('f_qa').value.trim() || '-',
+        sampleNum: document.getElementById('f_sample_num').value.trim(),
+        tahun: document.getElementById('f_tahun').value,
+        style: document.getElementById('f_style').value.trim(),
+        color: document.getElementById('f_color').value.trim(),
+        qty: document.getElementById('f_qty').value,
+        uom: document.getElementById('f_uom').value,
+        size: document.getElementById('f_size').value.trim(),
+        appDate: document.getElementById('f_app_date').value || '-',
+        remark: document.getElementById('f_remark').value.trim() || '-',
+        isDipinjam: idx === -1 ? "TIDAK" : databaseGlove[idx].isDipinjam,
+        peminjam: idx === -1 ? "-" : databaseGlove[idx].peminjam,
+        note: idx === -1 ? "-" : databaseGlove[idx].note,
+        tglPinjam: idx === -1 ? "-" : databaseGlove[idx].tglPinjam,
+        history: idx === -1 ? "-" : databaseGlove[idx].history
+    };
+
+    if (idx === -1) {
+        // DATA BARU: Gunakan push() agar dibuatkan id unik otomatis oleh Firebase secara online
+        dbRef.push(gloveDataObj).then(() => {
+            addModal.style.display = 'none';
+        }).catch(err => alert("Gagal menyimpan ke Cloud: " + err.message));
+    } else {
+        // EDIT DATA: Ambil key unik dari item yang diubah, lalu timpa path child tersebut
+        const targetKey = databaseGlove[idx].firebaseKey;
+        dbRef.child(targetKey).set(gloveDataObj).then(() => {
+            addModal.style.display = 'none';
+        }).catch(err => alert("Gagal mengupdate ke Cloud: " + err.message));
+    }
+});
+
+// FUNGSI EDIT GLOVE (Pastikan fungsi ini menutup dengan benar)
+window.editGlove = function(index) {
+    const item = databaseGlove[index];
+    document.getElementById('editIndex').value = index;
+    document.getElementById('modalTitle').innerText = "📝 Edit Register Item Glove Keeping";
+    
+    // Isi data form dengan data lama yang mau diedit
+    document.getElementById('f_rfid').value = item.rfid;
+    document.getElementById('f_rfid').disabled = true; // Kunci RFID saat edit jika diperlukan
+    document.getElementById('f_type').value = item.type;
+    document.getElementById('f_buyer').value = item.buyer;
+    document.getElementById('f_posisi').value = item.posisi;
+    document.getElementById('f_qa').value = item.qa === '-' ? '' : item.qa;
+    document.getElementById('f_sample_num').value = item.sampleNum;
+    document.getElementById('f_tahun').value = item.tahun;
+    document.getElementById('f_style').value = item.style;
+    document.getElementById('f_color').value = item.color;
+    document.getElementById('f_qty').value = item.qty;
+    document.getElementById('f_uom').value = item.uom;
+    document.getElementById('f_size').value = item.size;
+    document.getElementById('f_app_date').value = item.appDate === '-' ? '' : item.appDate;
+    document.getElementById('f_remark').value = item.remark === '-' ? '' : item.remark;
+    
+    addModal.style.display = 'flex';
+    updateSmartDatalist();
 };
-
-if (idx === -1) {
-    // DATA BARU: Gunakan push() agar dibuatkan id unik otomatis oleh Firebase secara online
-    dbRef.push(gloveDataObj).then(() => {
-        addModal.style.display = 'none';
-    }).catch(err => alert("Gagal menyimpan ke Cloud: " + err.message));
-} else {
-    // EDIT DATA: Ambil key unik dari item yang diubah, lalu timpa path child tersebut
-    const targetKey = databaseGlove[idx].firebaseKey;
-    dbRef.child(targetKey).set(gloveDataObj).then(() => {
-        addModal.style.display = 'none';
-    }).catch(err => alert("Gagal mengupdate ke Cloud: " + err.message));
-}
-        window.editGlove = function(index) {
-            const item = databaseGlove[index];
-            document.getElementById('editIndex').value = index;
-            document.getElementById('modalTitle').innerText = "📝 Edit Data Glove Keeping";
-            document.getElementById('f_rfid').value = item.rfid;
-            document.getElementById('f_type').value = item.type;
-            document.getElementById('f_buyer').value = item.buyer;
-            document.getElementById('f_posisi').value = item.posisi;
-            document.getElementById('f_qa').value = item.qa==='-'?'':item.qa;
-            document.getElementById('f_sample_num').value = item.sampleNum;
-            document.getElementById('f_tahun').value = item.tahun;
-            document.getElementById('f_style').value = item.style;
-            document.getElementById('f_color').value = item.color;
-            document.getElementById('f_qty').value = item.qty;
-            document.getElementById('f_uom').value = item.uom;
-            document.getElementById('f_size').value = item.size;
-            document.getElementById('f_app_date').value = item.appDate==='-'?'':item.appDate;
-            document.getElementById('f_remark').value = item.remark==='-'?'':item.remark;
-            addModal.style.display = 'flex';
-        };
 
         window.deleteGlove = function(index) {
     if(confirm("Hapus aset?")) {
