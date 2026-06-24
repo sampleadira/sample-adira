@@ -123,7 +123,8 @@
         
         .separator { position: relative; text-align: center; margin: 25px 0; }
         .separator::before {
-            content: ""; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background-color: #30363d; z-index: 1;
+            content: "";
+            position: absolute; top: 50%; left: 0; right: 0; height: 1px; background-color: #30363d; z-index: 1;
         }
         .text-separator { position: relative; z-index: 2; background-color: #161b22; padding: 0 15px; font-size: 12px; color: #8b949e; }
         
@@ -272,6 +273,10 @@
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
+        .form-grid.auto-filled-bg {
+            background-color: #0f1c14 !important;
+            border-color: #2ea043 !important;
+        }
         .form-group {
             display: flex;
             flex-direction: column;
@@ -333,13 +338,11 @@
         }
     </style>
 
-    <!-- SDK FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
-    <!-- ================= SECTION 1: HALAMAN LOGIN ================= -->
     <div id="loginPage" class="login-container" style="display: none;">
         <div class="kiri">
             <h3 class="hijau">A | ADIRA SAMPLE CENTER</h3>
@@ -356,6 +359,7 @@
                 <span>Masuk dengan Google</span>
             </button>
             <div class="separator"><span class="text-separator">atau</span></div>
+     
             <div class="warning-box-baru">
                 <strong class="hijau-baru">Akses Terbatas Tim Internal</strong>
                 <p class="info-text">Portal ini dikhususkan untuk penggunaan internal tim inti. Pastikan akun Anda sudah didaftarkan oleh Admin sebelum masuk.</p>
@@ -364,7 +368,6 @@
     </div>
 
 
-    <!-- ================= SECTION 2: MENU UTAMA (DASHBOARD) ================= -->
     <div id="dashboardPage" class="container-app" style="display: none;">
         <div class="app-header">
             <div>
@@ -392,7 +395,6 @@
     </div>
 
 
-    <!-- ================= SECTION 3: SUBSYSTEM GLOVE KEEPING ================= -->
     <div id="gloveKeepingPage" class="container-app" style="display: none;">
         <div class="app-header">
             <div>
@@ -454,7 +456,6 @@
     </div>
 
 
-    <!-- ================= SECTION 5: SUBSYSTEM PEMINJAMAN GLOVE ================= -->
     <div id="peminjamanPage" class="container-app" style="display: none;">
         <div class="app-header">
             <div>
@@ -518,7 +519,6 @@
     </div>
 
 
-    <!-- ================= SECTION 4: FORM MODAL GLOVE KEEPING ================= -->
     <div id="addModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -604,7 +604,6 @@
     </div>
 
 
-    <!-- ================= SECTION 6: MODAL POP-UP (+PINJAM GLOVE) ================= -->
     <div id="pinjamModal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="border-color: #388bfd;">
             <div class="modal-header">
@@ -641,7 +640,6 @@
                         <textarea id="p_note" rows="2" placeholder="Tulis catatan peminjaman secara lengkap..." required></textarea>
                     </div>
 
-                    <!-- Autoload Form Terkunci -->
                     <div class="form-group"><label>TYPE</label><input type="text" id="p_type" readonly style="background:#1f242c; color:#8b949e;"></div>
                     <div class="form-group"><label>BUYER</label><input type="text" id="p_buyer" readonly style="background:#1f242c; color:#8b949e;"></div>
                     <div class="form-group"><label>POSISI</label><input type="text" id="p_posisi" readonly style="background:#1f242c; color:#8b949e;"></div>
@@ -666,7 +664,6 @@
     </div>
 
 
-    <!-- ================= SECTION 7: MODAL POP-UP (GLOVE KEMBALI) ================= -->
     <div id="kembaliModal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="border-color: #ffbc42;">
             <div class="modal-header">
@@ -694,7 +691,6 @@
                     Remark: <span id="k_remark" class="abu"></span>
                 </p>
 
-                <!-- Highlight Font Besar Lokasi Pengembalian -->
                 <div class="highlight-box">
                     <div>
                         <label style="font-size: 11px; color: #8b949e;">KEMBALIKAN KE POSISI (RAK):</label>
@@ -713,18 +709,17 @@
         </div>
     </div>
 
-
     <script>
-        // Config Firebase 
-const firebaseConfig = {
-  apiKey: "AIzaSyCq2b73RQ21CgNWRiIeVvveoPWunMZGjno",
-  authDomain: "sample-adira.firebaseapp.com",
-  projectId: "sample-adira",
-  storageBucket: "sample-adira.firebasestorage.app",
-  messagingSenderId: "324122479981",
-  appId: "1:324122479981:web:5834750c9569889e9c5e64",
-  measurementId: "G-QVLJZXMW3Q"
-};
+        // Config Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCq2b73RQ21CgNWRiIeVvveoPWunMZGjno",
+            authDomain: "sample-adira.firebaseapp.com",
+            projectId: "sample-adira",
+            storageBucket: "sample-adira.firebasestorage.app",
+            messagingSenderId: "324122479981",
+            appId: "1:324122479981:web:5834750c9569889e9c5e64",
+            measurementId: "G-QVLJZXMW3Q"
+        };
         firebase.initializeApp(firebaseConfig);
 
         const daftarEmailDiterima = [
@@ -733,14 +728,17 @@ const firebaseConfig = {
             "emailrekan2@gmail.com",
             "emailrekan3@gmail.com"
         ];
-        
-        // Database ID Card Karyawan/Operator Internal
-        const databaseIDCard = {
+
+        // --- KANTONG RFID INTERNAL (localStorage) ---
+        // Mengambil master data "kantong" RFID dari localStorage jika sudah ada, atau mengisinya dengan database default bawaan sistem.
+        let kantongRFID = JSON.parse(localStorage.getItem('kantongRFID')) || {
             "99887766": "Vitriyani",
             "11223344": "Helmina",
             "55667788": "Arlita",
             "12121212": "Vanny"
         };
+        // Sinkronisasi awal ke localStorage browser agar tersimpan permanen
+        localStorage.setItem('kantongRFID', JSON.stringify(kantongRFID));
 
         // DOM Setup
         const loginPage = document.getElementById('loginPage');
@@ -777,20 +775,34 @@ const firebaseConfig = {
         });
 
         // Navigasi Menu
-        document.getElementById('toGloveKeeping').addEventListener('click', () => { dashboardPage.style.display = 'none'; gloveKeepingPage.style.display = 'block'; renderTabelGlove(); });
-        document.getElementById('toPeminjaman').addEventListener('click', () => { dashboardPage.style.display = 'none'; peminjamanPage.style.display = 'block'; renderTabelPinjam(); });
-        document.getElementById('backToDash').addEventListener('click', () => { gloveKeepingPage.style.display = 'none'; dashboardPage.style.display = 'block'; });
-        document.getElementById('backToDash2').addEventListener('click', () => { peminjamanPage.style.display = 'none'; dashboardPage.style.display = 'block'; });
+        document.getElementById('toGloveKeeping').addEventListener('click', () => {
+            dashboardPage.style.display = 'none';
+            gloveKeepingPage.style.display = 'block';
+            renderTabelGlove();
+        });
+        document.getElementById('toPeminjaman').addEventListener('click', () => {
+            dashboardPage.style.display = 'none';
+            peminjamanPage.style.display = 'block';
+            renderTabelPinjam();
+        });
+        document.getElementById('backToDash').addEventListener('click', () => {
+            gloveKeepingPage.style.display = 'none';
+            dashboardPage.style.display = 'block';
+        });
+        document.getElementById('backToDash2').addEventListener('click', () => {
+            peminjamanPage.style.display = 'none';
+            dashboardPage.style.display = 'block';
+        });
+
         document.getElementById('loginBtn').addEventListener('click', () => firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()));
         document.getElementById('logoutBtn').addEventListener('click', () => firebase.auth().signOut());
-
 
         // ===================================================
         // LOGIKA CORE: GLOVE KEEPING MANAJEMEN
         // ===================================================
         const addModal = document.getElementById('addModal');
         const formGlove = document.getElementById('formGlove');
-        
+
         document.getElementById('openAddModal').addEventListener('click', () => {
             formGlove.reset();
             document.getElementById('editIndex').value = "-1";
@@ -800,6 +812,7 @@ const firebaseConfig = {
             updateSmartDatalist();
             setTimeout(() => document.getElementById('f_rfid').focus(), 100);
         });
+
         document.getElementById('closeModal').addEventListener('click', () => addModal.style.display = 'none');
         document.getElementById('btnBatal').addEventListener('click', () => addModal.style.display = 'none');
 
@@ -812,19 +825,34 @@ const firebaseConfig = {
             e.preventDefault();
             const rfidValue = document.getElementById('f_rfid').value.trim();
             const idx = parseInt(document.getElementById('editIndex').value);
-
             const isDuplicate = databaseGlove.some((item, index) => item.rfid === rfidValue && index !== idx);
-            if (isDuplicate) { alert("⚠️ RFID sudah terdaftar!"); return; }
+            
+            if (isDuplicate) {
+                alert("⚠️ RFID sudah terdaftar!");
+                return;
+            }
 
             if (idx === -1) {
                 databaseGlove.unshift({
-                    rfid: rfidValue, type: document.getElementById('f_type').value, buyer: document.getElementById('f_buyer').value.trim(),
-                    posisi: document.getElementById('f_posisi').value.trim(), qa: document.getElementById('f_qa').value.trim() || '-',
-                    sampleNum: document.getElementById('f_sample_num').value.trim(), tahun: document.getElementById('f_tahun').value,
-                    style: document.getElementById('f_style').value.trim(), color: document.getElementById('f_color').value.trim(),
-                    qty: document.getElementById('f_qty').value, uom: document.getElementById('f_uom').value,
-                    size: document.getElementById('f_size').value.trim(), appDate: document.getElementById('f_app_date').value || '-',
-                    remark: document.getElementById('f_remark').value.trim() || '-', isDipinjam: "TIDAK", peminjam: "-", note: "-", tglPinjam: "-", history: "-"
+                    rfid: rfidValue,
+                    type: document.getElementById('f_type').value,
+                    buyer: document.getElementById('f_buyer').value.trim(),
+                    posisi: document.getElementById('f_posisi').value.trim(),
+                    qa: document.getElementById('f_qa').value.trim() || '-',
+                    sampleNum: document.getElementById('f_sample_num').value.trim(),
+                    tahun: document.getElementById('f_tahun').value,
+                    style: document.getElementById('f_style').value.trim(),
+                    color: document.getElementById('f_color').value.trim(),
+                    qty: document.getElementById('f_qty').value,
+                    uom: document.getElementById('f_uom').value,
+                    size: document.getElementById('f_size').value.trim(),
+                    appDate: document.getElementById('f_app_date').value || '-',
+                    remark: document.getElementById('f_remark').value.trim() || '-',
+                    isDipinjam: "TIDAK",
+                    peminjam: "-",
+                    note: "-",
+                    tglPinjam: "-",
+                    history: "-"
                 });
             } else {
                 databaseGlove[idx].rfid = rfidValue;
@@ -842,6 +870,7 @@ const firebaseConfig = {
                 databaseGlove[idx].appDate = document.getElementById('f_app_date').value || '-';
                 databaseGlove[idx].remark = document.getElementById('f_remark').value.trim() || '-';
             }
+
             localStorage.setItem('adira_glove_db', JSON.stringify(databaseGlove));
             renderTabelGlove();
             addModal.style.display = 'none';
@@ -869,17 +898,29 @@ const firebaseConfig = {
         };
 
         window.deleteGlove = function(index) {
-            if(confirm("Hapus aset?")) { databaseGlove.splice(index, 1); localStorage.setItem('adira_glove_db', JSON.stringify(databaseGlove)); renderTabelGlove(); }
+            if(confirm("Hapus aset?")) {
+                databaseGlove.splice(index, 1);
+                localStorage.setItem('adira_glove_db', JSON.stringify(databaseGlove));
+                renderTabelGlove();
+            }
         };
 
         function renderTabelGlove() {
             const tableBody = document.getElementById('tableBodyGlove');
             let tk=0, pk=0, ta=0, pa=0, td=0, pd=0;
             databaseGlove.forEach(item => {
-                if(item.type==="Keeping") { tk++; if(item.isDipinjam==="YA") pk++; }
-                else if(item.type==="Sample Approved") { ta++; if(item.isDipinjam==="YA") pa++; }
-                else if(item.type==="Duplikat Sample") { td++; if(item.isDipinjam==="YA") pd++; }
+                if(item.type==="Keeping") {
+                    tk++;
+                    if(item.isDipinjam==="YA") pk++;
+                } else if(item.type==="Sample Approved") {
+                    ta++;
+                    if(item.isDipinjam==="YA") pa++;
+                } else if(item.type==="Duplikat Sample") {
+                    td++;
+                    if(item.isDipinjam==="YA") pd++;
+                }
             });
+
             document.getElementById('resKeeping').innerHTML = `${pk} dipinjam / ${tk} total glove`;
             document.getElementById('resApproved').innerHTML = `${pa} dipinjam / ${ta} total glove`;
             document.getElementById('resDuplikat').innerHTML = `${pd} dipinjam / ${td} total glove`;
@@ -887,284 +928,180 @@ const firebaseConfig = {
 
             tableBody.innerHTML = databaseGlove.map((item, index) => `
                 <tr>
-                    <td class="hijau">${item.rfid}</td><td>${item.type}</td><td>${item.buyer}</td><td>${item.posisi}</td>
-                    <td>${item.qa}</td><td>${item.sampleNum}</td><td>${item.tahun}</td><td>${item.style}</td>
-                    <td>${item.color}</td><td>${item.qty}</td><td>${item.uom}</td><td>${item.size}</td>
-                    <td>${item.appDate}</td><td>${item.remark}</td><td><span class="${item.isDipinjam==='YA'?'merah':'hijau'}">${item.isDipinjam}</span></td>
-                    <td>${item.peminjam}</td><td>${item.note}</td><td>${item.tglPinjam}</td><td>${item.history}</td>
-                    <td style="position: sticky; right: 0; background: #161b22;">
-                        <button class="btn-edit" onclick="editGlove(${index})">Edit</button>
-                        <button class="btn-danger" onclick="deleteGlove(${index})">Delete</button>
+                    <td class="hijau" style="font-family: monospace;">${item.rfid}</td>
+                    <td>${item.type}</td>
+                    <td><strong>${item.buyer}</strong></td>
+                    <td style="font-weight: bold; color: #ffbc42;">${item.posisi}</td>
+                    <td>${item.qa}</td>
+                    <td>${item.sampleNum}</td>
+                    <td>${item.tahun}</td>
+                    <td>${item.style}</td>
+                    <td>${item.color}</td>
+                    <td>${item.qty}</td>
+                    <td>${item.uom}</td>
+                    <td><strong>${item.size}</strong></td>
+                    <td>${item.appDate}</td>
+                    <td>${item.remark}</td>
+                    <td><span class="${item.isDipinjam==='YA'?'merah':'hijau'}" style="font-weight: bold;">${item.isDipinjam}</span></td>
+                    <td><strong>${item.peminjam}</strong></td>
+                    <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">${item.note}</td>
+                    <td class="biru">${item.tglPinjam}</td>
+                    <td class="abu" style="font-size: 11px;">${item.history}</td>
+                    <td style="position: sticky; right: 0; background: #161b22; text-align: center; border-left:1px solid #30363d;">
+                        <button class="btn-edit" onclick="editGlove(${index})">📝 Edit</button>
+                        <button class="btn-danger" onclick="deleteGlove(${index})">🗑️ Hapus</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-
         // ===================================================
-        // LOGIKA CORE: TRANSAKSI SUB-SISTEM PEMINJAMAN GLOVE
+        // LOGIKA CORE: TRANSAKSI PEMINJAMAN GLOVE
         // ===================================================
         const pinjamModal = document.getElementById('pinjamModal');
         const formPinjam = document.getElementById('formPinjam');
-        const kembaliModal = document.getElementById('kembaliModal');
+        const inputIdCard = document.getElementById('p_idcard');
+        const inputNamaPeminjam = document.getElementById('p_nama');
+        const inputRfidGlove = document.getElementById('p_rfid');
 
-        // Buka Modal Pinjam (+Pinjam)
         document.getElementById('openPinjamModal').addEventListener('click', () => {
             formPinjam.reset();
+            document.getElementById('p_tgl').value = new Date().toISOString().substring(0, 10);
             document.getElementById('pinjamIndex').value = "-1";
-            
-            // Reset Dinamis State Input Nama Peminjam ke default awal
-            const namaInput = document.getElementById('p_nama');
-            namaInput.value = "";
-            namaInput.readOnly = false;
-            namaInput.style.background = "";
-            namaInput.style.color = "";
-            namaInput.placeholder = "Nama Peminjam / Dept";
-
-            // Set default tanggal hari ini
-            const hariIni = new Date().toISOString().split('T')[0];
-            document.getElementById('p_tgl').value = hariIni;
-
+            inputNamaPeminjam.placeholder = "Nama Peminjam / Dept";
+            inputNamaPeminjam.readOnly = false;
             pinjamModal.style.display = 'flex';
-            setTimeout(() => document.getElementById('p_idcard').focus(), 100);
+            setTimeout(() => inputIdCard.focus(), 100);
         });
 
         document.getElementById('closePinjamModal').addEventListener('click', () => pinjamModal.style.display = 'none');
         document.getElementById('btnBatalPinjam').addEventListener('click', () => pinjamModal.style.display = 'none');
 
-        // Logika Dinamis Scan ID Card Karyawan (Kantong ID Card)
-        document.getElementById('p_idcard').addEventListener('input', (e) => {
-            const idCardScanned = e.target.value.trim();
-            const namaInput = document.getElementById('p_nama');
-
-            if (idCardScanned === "") {
-                namaInput.value = "";
-                namaInput.readOnly = false;
-                namaInput.style.background = "";
-                namaInput.style.color = "";
-                namaInput.placeholder = "Nama Peminjam / Dept";
-            } else if (databaseIDCard[idCardScanned]) {
-                // Jika ID CARD terdaftar: Isi otomatis & KUNCI kolomnya
-                namaInput.value = databaseIDCard[idCardScanned];
-                namaInput.readOnly = true;
-                namaInput.style.background = "#21262d"; 
-                namaInput.style.color = "#8b949e";
-            } else {
-                // Jika ID CARD baru/tidak terdaftar: BUKA kolom agar bisa diketik manual
-                if (namaInput.readOnly) {
-                    namaInput.value = ""; 
-                }
-                namaInput.readOnly = false;
-                namaInput.style.background = ""; 
-                namaInput.style.color = "";
-                namaInput.placeholder = "Nama Peminjam / Dept";
-            }
-        });
-
-        // Event listener saat RFID TAG GLOVE di-scan
-        document.getElementById('p_rfid').addEventListener('input', (e) => {
-            const rfidScanned = e.target.value.trim();
-            const foundIdx = databaseGlove.findIndex(item => item.rfid === rfidScanned);
-
-            if(foundIdx !== -1) {
-                const item = databaseGlove[foundIdx];
-                if(item.isDipinjam === "YA") {
-                    alert("⚠️ Gagal! Glove ini sedang berstatus dipinjam oleh: " + item.peminjam);
-                    e.target.value = "";
-                    return;
-                }
-                document.getElementById('pinjamIndex').value = foundIdx;
-                document.getElementById('p_type').value = item.type;
-                document.getElementById('p_buyer').value = item.buyer;
-                document.getElementById('p_posisi').value = item.posisi;
-                document.getElementById('p_qa').value = item.qa;
-                document.getElementById('p_sample_num').value = item.sampleNum;
-                document.getElementById('p_tahun').value = item.tahun;
-                document.getElementById('p_style').value = item.style;
-                document.getElementById('p_color').value = item.color;
-                document.getElementById('p_qty').value = item.qty;
-                document.getElementById('p_uom').value = item.uom;
-                document.getElementById('p_size').value = item.size;
-                document.getElementById('p_app_date').value = item.appDate;
-                document.getElementById('p_remark').value = item.remark;
-            } else {
-                // Reset form jika RFID tidak valid
-                document.getElementById('pinjamIndex').value = "-1";
-                ['type','buyer','posisi','qa','sample_num','tahun','style','color','qty','uom','size','app_date','remark'].forEach(f => {
-                    document.getElementById('p_' + f).value = "";
-                });
-            }
-        });
-
-        // Submit Form Peminjaman
-        formPinjam.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const targetIdx = parseInt(document.getElementById('pinjamIndex').value);
-
-            if(targetIdx === -1) {
-                alert("⚠️ Gagal! Tag RFID Glove tidak ditemukan dalam database asset.");
+        // --- ALUR AUTOCOMPLETE & DETEKSI KANTONG ID CARD ---
+        inputIdCard.addEventListener('input', (e) => {
+            const scanID = e.target.value.trim();
+            if (scanID === "") {
+                inputNamaPeminjam.value = "";
+                inputNamaPeminjam.placeholder = "Nama Peminjam / Dept";
+                inputNamaPeminjam.readOnly = false;
                 return;
             }
 
-            // Update status asset di database master
-            databaseGlove[targetIdx].isDipinjam = "YA";
-            databaseGlove[targetIdx].peminjam = document.getElementById('p_nama').value.trim();
-            databaseGlove[targetIdx].tglPinjam = document.getElementById('p_tgl').value;
-            databaseGlove[targetIdx].note = document.getElementById('p_note').value.trim();
-
-            localStorage.setItem('adira_glove_db', JSON.stringify(databaseGlove));
-            alert("Transaksi peminjaman berhasil dicatat!");
-            
-            renderTabelPinjam();
-            pinjamModal.style.display = 'none';
-        });
-
-        // EDIT DATA PEMINJAMAN (Hanya Mengedit Tanggal & Catatan Logistik)
-        window.editPeminjaman = function(masterIndex) {
-            const item = databaseGlove[masterIndex];
-            document.getElementById('pinjamIndex').value = masterIndex;
-            
-            document.getElementById('p_tgl').value = item.tglPinjam;
-            document.getElementById('p_idcard').value = "BY-PASSED";
-            
-            // Izinkan pengeditan nama saat mode log edit admin berkas pinjam
-            const namaInput = document.getElementById('p_nama');
-            namaInput.value = item.peminjam;
-            namaInput.readOnly = false;
-            namaInput.style.background = "";
-            namaInput.style.color = "";
-
-            document.getElementById('p_rfid').value = item.rfid;
-            document.getElementById('p_note').value = item.note;
-
-            document.getElementById('p_type').value = item.type;
-            document.getElementById('p_buyer').value = item.buyer;
-            document.getElementById('p_posisi').value = item.posisi;
-            document.getElementById('p_qa').value = item.qa;
-            document.getElementById('p_sample_num').value = item.sampleNum;
-            document.getElementById('p_tahun').value = item.tahun;
-            document.getElementById('p_style').value = item.style;
-            document.getElementById('p_color').value = item.color;
-            document.getElementById('p_qty').value = item.qty;
-            document.getElementById('p_uom').value = item.uom;
-            document.getElementById('p_size').value = item.size;
-            document.getElementById('p_app_date').value = item.appDate;
-            document.getElementById('p_remark').value = item.remark;
-
-            pinjamModal.style.display = 'flex';
-        };
-
-        // MODAL PROSES GLOVE KEMBALI
-        let kembaliGlobalIdx = -1;
-        document.getElementById('openKembaliModal').addEventListener('click', () => {
-            document.getElementById('k_scan_rfid').value = "";
-            document.getElementById('kembaliInfoBox').style.display = 'none';
-            kembaliGlobalIdx = -1;
-            kembaliModal.style.display = 'flex';
-            setTimeout(() => document.getElementById('k_scan_rfid').focus(), 100);
-        });
-        document.getElementById('closeKembaliModal').addEventListener('click', () => kembaliModal.style.display = 'none');
-
-        // Deteksi scan pengembalian
-        document.getElementById('k_scan_rfid').addEventListener('input', (e) => {
-            const rfidScanned = e.target.value.trim();
-            const foundIdx = databaseGlove.findIndex(item => item.rfid === rfidScanned);
-
-            if(foundIdx !== -1) {
-                const item = databaseGlove[foundIdx];
-                if(item.isDipinjam !== "YA") {
-                    alert("⚠️ Unit Glove ditemukan, namun statusnya TIDAK sedang dipinjam.");
-                    return;
-                }
-                kembaliGlobalIdx = foundIdx;
-                
-                // Isi info text kecil
-                document.getElementById('k_type').innerText = item.type;
-                document.getElementById('k_buyer').innerText = item.buyer;
-                document.getElementById('k_sample_num').innerText = item.sampleNum;
-                document.getElementById('k_tahun').innerText = item.tahun;
-                document.getElementById('k_style').innerText = item.style;
-                document.getElementById('k_color').innerText = item.color;
-                document.getElementById('k_qty').innerText = item.qty;
-                document.getElementById('k_uom').innerText = item.uom;
-                document.getElementById('k_size').innerText = item.size;
-                document.getElementById('k_app_date').innerText = item.appDate;
-                document.getElementById('k_remark').innerText = item.remark;
-
-                // Highlight Lokasi Penempatan (Font Besar)
-                document.getElementById('k_posisi').innerText = item.posisi;
-                document.getElementById('k_qa').innerText = item.qa;
-
-                document.getElementById('kembaliInfoBox').style.display = 'block';
+            // Jika ID Card ada di dalam kantong data
+            if (kantongRFID[scanID]) {
+                inputNamaPeminjam.value = kantongRFID[scanID];
+                inputNamaPeminjam.readOnly = true; // Kunci biar ga capek ngetik ulang
+                // Langsung pindah fokus otomatis ke scan RFID unit glove
+                setTimeout(() => inputRfidGlove.focus(), 150);
             } else {
-                document.getElementById('kembaliInfoBox').style.display = 'none';
-                kembaliGlobalIdx = -1;
+                // Jika ID baru (tidak ada di kantong)
+                inputNamaPeminjam.value = "";
+                inputNamaPeminjam.placeholder = "ID BARU! Wajib isi Nama / Dept manual";
+                inputNamaPeminjam.readOnly = false;
             }
         });
 
-        // Eksekusi Tombol Konfirmasi Pengembalian Selesai
-        document.getElementById('btnProsesKembali').addEventListener('click', () => {
-            if(kembaliGlobalIdx === -1) return;
-
-            const item = databaseGlove[kembaliGlobalIdx];
+        // Autoload Data Detail Glove saat Scan RFID Unit di Form Pinjam
+        inputRfidGlove.addEventListener('input', (e) => {
+            const targetRfid = e.target.value.trim();
+            const matchedItem = databaseGlove.find(item => item.rfid === targetRfid);
             
-            // Format tanggal pengembalian hari ini (DD/MM/YY)
-            const tgl = new Date();
-            const formatTgl = String(tgl.getDate()).padStart(2, '0') + '/' + String(tgl.getMonth() + 1).padStart(2, '0') + '/' + String(tgl.getFullYear()).substring(2);
-            
-            // Buat log kalimat history baru
-            const entriBaru = `${item.peminjam} ${formatTgl}`;
-            let historyLama = item.history === '-' ? '' : item.history;
-
-            // Gabungkan dengan urutan tgl pengembalian terbaru berada di AWAL kalimat
-            let historyBaru = historyLama ? `${entriBaru} ; ${historyLama}` : entriBaru;
-
-            // Update status objek ke master database
-            databaseGlove[kembaliGlobalIdx].isDipinjam = "TIDAK";
-            databaseGlove[kembaliGlobalIdx].history = historyBaru;
-            
-            // Clear log peminjam aktif
-            databaseGlove[kembaliGlobalIdx].peminjam = "-";
-            databaseGlove[kembaliGlobalIdx].note = "-";
-            databaseGlove[kembaliGlobalIdx].tglPinjam = "-";
-
-            localStorage.setItem('adira_glove_db', JSON.stringify(databaseGlove));
-            alert(`✅ Sukses! Selesai dikembalikan ke rak "${item.posisi}". History diperbarui.`);
-            
-            renderTabelPinjam();
-            kembaliModal.style.display = 'none';
+            if (matchedItem) {
+                if (matchedItem.isDipinjam === "YA") {
+                    alert("⚠️ Unit Glove ini sedang dipinjam oleh: " + matchedItem.peminjam);
+                    e.target.value = "";
+                    return;
+                }
+                document.getElementById('p_type').value = matchedItem.type;
+                document.getElementById('p_buyer').value = matchedItem.buyer;
+                document.getElementById('p_posisi').value = matchedItem.posisi;
+                document.getElementById('p_qa').value = matchedItem.qa;
+                document.getElementById('p_sample_num').value = matchedItem.sampleNum;
+                document.getElementById('p_tahun').value = matchedItem.tahun;
+                document.getElementById('p_style').value = matchedItem.style;
+                document.getElementById('p_color').value = matchedItem.color;
+                document.getElementById('p_qty').value = matchedItem.qty;
+                document.getElementById('p_uom').value = matchedItem.uom;
+                document.getElementById('p_size').value = matchedItem.size;
+                document.getElementById('p_app_date').value = matchedItem.appDate;
+                document.getElementById('p_remark').value = matchedItem.remark;
+            } else {
+                // Kosongkan field pendukung jika RFID ga cocok
+                clearAutoloadFields();
+            }
         });
 
-        // RENDER DATA TABEL LIST PINJAMAN
+        function clearAutoloadFields() {
+            ['p_type','p_buyer','p_posisi','p_qa','p_sample_num','p_tahun','p_style','p_color','p_qty','p_uom','p_size','p_app_date','p_remark'].forEach(id => {
+                document.getElementById(id).value = "";
+            });
+        }
+
+        // Submit Form Eksekusi Pinjam
+        formPinjam.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const idCardVal = inputIdCard.value.trim();
+            const namaVal = inputNamaPeminjam.value.trim();
+            const rfidGloveVal = inputRfidGlove.value.trim();
+            const noteVal = document.getElementById('p_note').value.trim();
+            const tglVal = document.getElementById('p_tgl').value;
+
+            // Find index item di databaseGlove
+            const itemIndex = databaseGlove.findIndex(item => item.rfid === rfidGloveVal);
+            if (itemIndex === -1) {
+                alert("⚠️ Gagal! Tag RFID Glove tidak ditemukan dalam master register.");
+                return;
+            }
+            if (databaseGlove[itemIndex].isDipinjam === "YA") {
+                alert("⚠️ Glove ini sudah berstatus DIPINJAM.");
+                return;
+            }
+
+            // --- PROSES SIMPAN NAMA BARU KE KANTONG RFID ---
+            if (!kantongRFID[idCardVal]) {
+                kantongRFID[idCardVal] = namaVal;
+                localStorage.setItem('kantongRFID', JSON.stringify(kantongRFID)); // Simpan ke kantong
+                console.log(`Berhasil mendaftarkan ID Card Baru: ${idCardVal} - ${namaVal}`);
+            }
+
+            // Update status item di database utama
+            databaseGlove[itemIndex].isDipinjam = "YA";
+            databaseGlove[itemIndex].peminjam = namaVal;
+            databaseGlove[itemIndex].note = noteVal;
+            databaseGlove[itemIndex].tglPinjam = tglVal;
+
+            localStorage.setItem('adira_glove_db', JSON.stringify(databaseGlove));
+            
+            renderTabelGlove();
+            renderTabelPinjam();
+            pinjamModal.style.display = 'none';
+            alert(`🎉 Sukses! Glove berhasil dipinjam oleh ${namaVal}`);
+        });
+
         function renderTabelPinjam() {
             const tableBody = document.getElementById('tableBodyPinjam');
-            let pk = 0, pa = 0, pd = 0;
-
-            // Hitung data yang dipinjam saja
+            const dataPinjamAktif = databaseGlove.filter(item => item.isDipinjam === "YA");
+            
+            let pk=0, pa=0, pd=0;
             databaseGlove.forEach(item => {
                 if(item.isDipinjam === "YA") {
                     if(item.type === "Keeping") pk++;
-                    if(item.type === "Sample Approved") pa++;
-                    if(item.type === "Duplikat Sample") pd++;
+                    else if(item.type === "Sample Approved") pa++;
+                    else if(item.type === "Duplikat Sample") pd++;
                 }
             });
 
             document.getElementById('resPinjamKeeping').innerText = `${pk} Glove`;
             document.getElementById('resPinjamApproved').innerText = `${pa} Glove`;
             document.getElementById('resPinjamDuplikat').innerText = `${pd} Glove`;
+            document.getElementById('totalPinjamItems').innerText = `Total: ${dataPinjamAktif.length} unit glove sedang dipinjam aktif.`;
 
-            // Filter baris array: hanya ambil yang .isDipinjam === "YA"
-            const dataDipinjam = databaseGlove.map((item, originalIndex) => ({...item, originalIndex})).filter(item => item.isDipinjam === "YA");
-            
-            document.getElementById('totalPinjamItems').innerText = `Menampilkan ${dataDipinjam.length} item aktif yang sedang dipinjam.`;
+            // Map untuk menyertakan index aslinya agar pencarian item presisi
+            const mappedPinjam = databaseGlove
+                .map((item, originalIndex) => ({ ...item, originalIndex }))
+                .filter(item => item.isDipinjam === "YA");
 
-            if(dataDipinjam.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="19" style="text-align: center; color: #8b949e; padding: 30px;">🎉 Keren! Tidak ada glove yang sedang dipinjam saat ini. Semua aman di dalam rak.</td></tr>`;
-                return;
-            }
-
-            // Mapping baris sesuai dengan struktur urutan kolom
-            tableBody.innerHTML = dataDipinjam.map(item => `
+            tableBody.innerHTML = mappedPinjam.map(item => `
                 <tr>
                     <td class="biru" style="font-weight: bold;">${item.tglPinjam}</td>
                     <td><strong>${item.peminjam}</strong></td>
@@ -1185,11 +1122,88 @@ const firebaseConfig = {
                     <td>${item.appDate}</td>
                     <td>${item.remark}</td>
                     <td style="text-align: center; position: sticky; right: 0; background: #161b22; border-left:1px solid #30363d;">
-                        <button class="btn-edit" onclick="editPeminjaman(${item.originalIndex})">📝 Edit</button>
+                        <button class="btn-edit" onclick="editGlove(${item.originalIndex})">📝 Edit</button>
                     </td>
                 </tr>
             `).join('');
         }
+
+        // ===================================================
+        // LOGIKA CORE: MODAL PENGEMBALIAN GLOVE
+        // ===================================================
+        const kembaliModal = document.getElementById('kembaliModal');
+        const scanKembaliRfid = document.getElementById('k_scan_rfid');
+        const kembaliInfoBox = document.getElementById('kembaliInfoBox');
+        let matchedKembaliIdx = -1;
+
+        document.getElementById('openKembaliModal').addEventListener('click', () => {
+            scanKembaliRfid.value = "";
+            kembaliInfoBox.style.display = "none";
+            matchedKembaliIdx = -1;
+            kembaliModal.style.display = 'flex';
+            setTimeout(() => scanKembaliRfid.focus(), 100);
+        });
+
+        document.getElementById('closeKembaliModal').addEventListener('click', () => kembaliModal.style.display = 'none');
+
+        scanKembaliRfid.addEventListener('input', (e) => {
+            const targetRfid = e.target.value.trim();
+            const idx = databaseGlove.findIndex(item => item.rfid === targetRfid);
+
+            if (idx !== -1) {
+                const item = databaseGlove[idx];
+                if (item.isDipinjam !== "YA") {
+                    alert("ℹ️ Unit Glove ini tidak dalam status dipinjam!");
+                    e.target.value = "";
+                    return;
+                }
+                
+                matchedKembaliIdx = idx;
+                document.getElementById('k_type').innerText = item.type;
+                document.getElementById('k_buyer').innerText = item.buyer;
+                document.getElementById('k_sample_num').innerText = item.sampleNum;
+                document.getElementById('k_tahun').innerText = item.tahun;
+                document.getElementById('k_style').innerText = item.style;
+                document.getElementById('k_color').innerText = item.color;
+                document.getElementById('k_qty').innerText = item.qty;
+                document.getElementById('k_uom').innerText = item.uom;
+                document.getElementById('k_size').innerText = item.size;
+                document.getElementById('k_app_date').innerText = item.appDate;
+                document.getElementById('k_remark').innerText = item.remark;
+                
+                // Highlight Lokasi Rak & QA File
+                document.getElementById('k_posisi').innerText = item.posisi;
+                document.getElementById('k_qa').innerText = item.qa;
+
+                kembaliInfoBox.style.display = "block";
+            } else {
+                kembaliInfoBox.style.display = "none";
+                matchedKembaliIdx = -1;
+            }
+        });
+
+        document.getElementById('btnProsesKembali').addEventListener('click', () => {
+            if (matchedKembaliIdx === -1) return;
+
+            const item = databaseGlove[matchedKembaliIdx];
+            const tglSelesai = new Date().toLocaleDateString('id-ID');
+            const logLama = item.history === "-" ? "" : item.history + " | ";
+            
+            // Perbarui data history & kembalikan status pinjam
+            databaseGlove[matchedKembaliIdx].history = logLama + `Kembali oleh ${item.peminjam} tgl ${tglSelesai}`;
+            databaseGlove[matchedKembaliIdx].isDipinjam = "TIDAK";
+            databaseGlove[matchedKembaliIdx].peminjam = "-";
+            databaseGlove[matchedKembaliIdx].note = "-";
+            databaseGlove[matchedKembaliIdx].tglPinjam = "-";
+
+            localStorage.setItem('adira_glove_db', JSON.stringify(databaseGlove));
+            
+            renderTabelGlove();
+            renderTabelPinjam();
+            kembaliModal.style.display = 'none';
+            alert(`🔄 Sukses! Glove berhasil dikembalikan ke posisi ${item.posisi}`);
+        });
+
     </script>
 </body>
 </html>
