@@ -865,7 +865,7 @@ formGlove.addEventListener('submit', (e) => {
         return;
     }
 
-    // Siapkan objek data yang bersih tanpa menyertakan firebaseKey di dalamnya
+    // Siapkan objek data dengan proteksi idx === -1 agar tidak crash/blank
     const gloveDataObj = {
         rfid: rfidValue,
         type: document.getElementById('f_type').value,
@@ -881,23 +881,27 @@ formGlove.addEventListener('submit', (e) => {
         size: document.getElementById('f_size').value.trim(),
         appDate: document.getElementById('f_app_date').value || '-',
         remark: document.getElementById('f_remark').value.trim() || '-',
-        isDipinjam: idx === -1 ? "TIDAK" : databaseGlove[idx].isDipinjam,
-        peminjam: idx === -1 ? "-" : databaseGlove[idx].peminjam,
-        note: idx === -1 ? "-" : databaseGlove[idx].note,
-        tglPinjam: idx === -1 ? "-" : databaseGlove[idx].tglPinjam,
-        history: idx === -1 ? "-" : databaseGlove[idx].history
+        isDipinjam: idx === -1 ? "TIDAK" : (databaseGlove[idx].isDipinjam || "TIDAK"),
+        peminjam: idx === -1 ? "-" : (databaseGlove[idx].peminjam || "-"),
+        note: idx === -1 ? "-" : (databaseGlove[idx].note || "-"),
+        tglPinjam: idx === -1 ? "-" : (databaseGlove[idx].tglPinjam || "-"),
+        history: idx === -1 ? "-" : (databaseGlove[idx].history || "-"),
+        status: idx === -1 ? "-" : (databaseGlove[idx].status || "-"),
+        denda: idx === -1 ? "-" : (databaseGlove[idx].denda || "-")
     };
 
     if (idx === -1) {
-        // DATA BARU: Gunakan push() agar dibuatkan id unik otomatis oleh Firebase secara online
+        // DATA BARU: Gunakan push() ke Firebase Cloud
         dbRef.push(gloveDataObj).then(() => {
             addModal.style.display = 'none';
+            formGlove.reset();
         }).catch(err => alert("Gagal menyimpan ke Cloud: " + err.message));
     } else {
-        // EDIT DATA: Ambil key unik dari item yang diubah, lalu timpa path child tersebut
+        // EDIT DATA: Gunakan key unik dari item yang diubah
         const targetKey = databaseGlove[idx].firebaseKey;
         dbRef.child(targetKey).set(gloveDataObj).then(() => {
             addModal.style.display = 'none';
+            formGlove.reset();
         }).catch(err => alert("Gagal mengupdate ke Cloud: " + err.message));
     }
 });
