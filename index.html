@@ -464,7 +464,6 @@
             <button id="backToDash2" class="btn-sekunder">← Kembali ke Menu</button>
         </div>
 
-        <!-- 1. Resume Dashboard (Hanya Menampilkan Yang Dipinjam) -->
         <div class="resume-grid">
             <div class="resume-card" style="border-left: 4px solid #58a6ff;">
                 <span class="title">Keeping Glove Dipinjam</span>
@@ -488,7 +487,6 @@
             </div>
         </div>
 
-        <!-- 2 & 3. Tabel Filter Khusus List Sample Dipinjam & Susunan Kolom Baru -->
         <div class="table-responsive">
             <table>
                 <thead>
@@ -735,6 +733,7 @@ const firebaseConfig = {
             "emailrekan2@gmail.com",
             "emailrekan3@gmail.com"
         ];
+        
         // Database ID Card Karyawan/Operator Internal
         const databaseIDCard = {
             "99887766": "Vitriyani",
@@ -933,7 +932,7 @@ const firebaseConfig = {
         document.getElementById('closePinjamModal').addEventListener('click', () => pinjamModal.style.display = 'none');
         document.getElementById('btnBatalPinjam').addEventListener('click', () => pinjamModal.style.display = 'none');
 
-        // Logika Dinamis Scan ID Card Karyawan (Sesuai Koreksi)
+        // Logika Dinamis Scan ID Card Karyawan (Kantong ID Card)
         document.getElementById('p_idcard').addEventListener('input', (e) => {
             const idCardScanned = e.target.value.trim();
             const namaInput = document.getElementById('p_nama');
@@ -951,7 +950,7 @@ const firebaseConfig = {
                 namaInput.style.background = "#21262d"; 
                 namaInput.style.color = "#8b949e";
             } else {
-                // Jika ID CARD baru: BUKA kolom agar bisa diketik manual (Nama Peminjam / Dept)
+                // Jika ID CARD baru/tidak terdaftar: BUKA kolom agar bisa diketik manual
                 if (namaInput.readOnly) {
                     namaInput.value = ""; 
                 }
@@ -989,7 +988,7 @@ const firebaseConfig = {
                 document.getElementById('p_app_date').value = item.appDate;
                 document.getElementById('p_remark').value = item.remark;
             } else {
-                // Reset form autoload jika rfid tidak valid
+                // Reset form jika RFID tidak valid
                 document.getElementById('pinjamIndex').value = "-1";
                 ['type','buyer','posisi','qa','sample_num','tahun','style','color','qty','uom','size','app_date','remark'].forEach(f => {
                     document.getElementById('p_' + f).value = "";
@@ -1164,7 +1163,7 @@ const firebaseConfig = {
                 return;
             }
 
-            // Mapping baris sesuai dengan struktur urutan kolom yang diminta
+            // Mapping baris sesuai dengan struktur urutan kolom
             tableBody.innerHTML = dataDipinjam.map(item => `
                 <tr>
                     <td class="biru" style="font-weight: bold;">${item.tglPinjam}</td>
