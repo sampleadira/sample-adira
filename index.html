@@ -73,57 +73,118 @@
         }
         .btn-edit:hover { background-color: #58a6ff; color: #ffffff; }
 
-        /* --- 1. HALAMAN LOGIN (KEMBALI SESUAI IMAGE_F92418.PNG) --- */
+        /* --- 1. HALAMAN LOGIN (KEMBALI KE LAYOUT DUA KOLOM - Screenshot 2026-06-25 073246.png) --- */
         .login-container {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            gap: 80px;
+            padding: 40px;
             box-sizing: border-box;
             background-color: #0d1117;
-            padding: 20px;
+        }
+        .kiri {
+            max-width: 500px;
+        }
+        .kiri h3 {
+            font-size: 16px;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        .kiri h1 {
+            font-size: 3.2em;
+            line-height: 1.2;
+            margin: 0 0 20px 0;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .kiri p {
+            color: #8b949e;
+            font-size: 16px;
+            line-height: 1.6;
         }
         .kanan {
             background-color: #161b22;
             padding: 40px;
-            border-radius: 10px;
+            border-radius: 8px;
             border: 1px solid #30363d;
-            width: 450px;
-            max-width: 100%;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            width: 420px;
+            box-sizing: border-box;
         }
-        .kanan h1 {
-            font-size: 2.2em;
-            margin: 0 0 10px 0;
-            color: #58a6ff;
-            font-weight: 700;
+        .badge-akses {
+            background-color: rgba(74, 222, 128, 0.1);
+            color: #4ade80;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 20px;
         }
         .sub-text {
             color: #8b949e;
-            font-size: 15px;
+            font-size: 14px;
             line-height: 1.5;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
+        .pembatas-atau {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #444c56;
+            font-size: 12px;
+            margin: 20px 0;
+        }
+        .pembatas-atau::before, .pembatas-atau::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #30363d;
+        }
+        .pembatas-atau:not(:empty)::before { margin-right: .5em; }
+        .pembatas-atau:not(:empty)::after { margin-left: .5em; }
+
+        .notif-box {
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            background-color: rgba(74, 222, 128, 0.02);
+            padding: 15px;
+            border-radius: 6px;
+            text-align: left;
+        }
+        .notif-box h4 {
+            margin: 0 0 5px 0;
+            color: #4ade80;
+            font-size: 14px;
+        }
+        .notif-box p {
+            margin: 0;
+            color: #8b949e;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
         .btn-google-baru {
-            background-color: #1f242c;
+            background-color: #161b22;
             color: #ffffff;
             border: 1px solid #30363d;
-            padding: 14px 20px;
-            border-radius: 8px;
+            padding: 12px 20px;
+            border-radius: 6px;
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px; 
-            font-size: 16px;
+            gap: 10px; 
+            font-size: 14px;
             width: 100%;
             box-sizing: border-box;
             cursor: pointer;
             transition: 0.2s;
         }
         .btn-google-baru:hover { background-color: #30363d; border-color: #8b949e; }
-        .google-logo { width: 20px; height: 20px; }
+        .google-logo { width: 18px; height: 18px; }
 
         /* --- 2. HALAMAN MENU UTAMA (DASHBOARD) --- */
         .container-app {
@@ -279,18 +340,26 @@
             margin-bottom: 6px;
             font-weight: 500;
         }
+        
+        /* FIX: Menambahkan box-sizing agar border dashed tidak memotong teks (Screenshot 2026-06-23 115838.png) */
         .form-group input, .form-group select, .form-group textarea {
             background-color: #0d1117;
             color: #ffffff;
             border: 1px solid #30363d;
             border-radius: 6px;
-            padding: 10px;
+            padding: 10px 12px;
             font-size: 14px;
             outline: none;
+            box-sizing: border-box; 
+            height: 40px;
         }
+        .form-group textarea { height: auto; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #4ade80; }
+        
+        /* Penyesuaian khusus elemen scan RFID agar tetap sejajar dan luas */
         .rfid-field { border: 1px dashed #4ade80 !important; background-color: #112217 !important; }
         .idcard-field { border: 1px dashed #58a6ff !important; background-color: #0f2030 !important; }
+        
         .modal-footer {
             margin-top: 25px;
             padding-top: 15px;
@@ -324,19 +393,32 @@
 </head>
 <body>
 
-    <!-- HALAMAN LOGIN DIUBAH SESUAI IMAGE_F92418.PNG -->
+    <!-- 1. HALAMAN LOGIN: FORMAT DUA KOLOM (Screenshot 2026-06-25 073246.png) -->
     <div id="loginPage" class="login-container" style="display: none;">
+        <div class="kiri">
+            <h3 class="hijau">A | ADIRA SAMPLE CENTER</h3>
+            <h1>Sistem Pusat<br><span class="hijau">Sample</span><br>Adira</h1>
+            <p>Database terpadu untuk semua dokumen sample.</p>
+        </div>
         <div class="kanan">
-            <h1>Glove Keeping Portal</h1>
-            <p class="sub-text">Gunakan Email Korporat Terdaftar Untuk Akses<br>Sistem</p>
+            <div class="badge-akses">⚡ AKSES PORTAL</div>
+            <p class="sub-text">Masuk menggunakan akun Google yang telah diotorisasi.</p>
             
             <button id="loginBtn" class="btn-google-baru">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" class="google-logo">
                 <span>Masuk dengan Google</span>
             </button>
+
+            <div class="pembatas-atau">atau</div>
+
+            <div class="notif-box">
+                <h4>Akses Terbatas Tim Internal</h4>
+                <p>Portal ini dikhususkan untuk penggunaan internal tim inti. Pastikan akun Anda sudah didaftarkan oleh Admin sebelum masuk.</p>
+            </div>
         </div>
     </div>
 
+    <!-- 2. HALAMAN MENU UTAMA (DASHBOARD) -->
     <div id="dashboardPage" class="container-app" style="display: none;">
         <div class="app-header">
             <div>
@@ -363,6 +445,7 @@
         </div>
     </div>
 
+    <!-- 3. HALAMAN GLOVE KEEPING -->
     <div id="gloveKeepingPage" class="container-app" style="display: none;">
         <div class="app-header">
             <div>
@@ -423,6 +506,7 @@
         </div>
     </div>
 
+    <!-- 4. HALAMAN PEMINJAMAN GLOVE -->
     <div id="peminjamanPage" class="container-app" style="display: none;">
         <div class="app-header">
             <div>
@@ -485,6 +569,7 @@
         </div>
     </div>
 
+    <!-- MODAL REGISTER DATA BARU -->
     <div id="addModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -569,6 +654,7 @@
         </div>
     </div>
 
+    <!-- MODAL FORM TRANSAKSI PINJAM -->
     <div id="pinjamModal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="border-color: #388bfd;">
             <div class="modal-header">
@@ -622,6 +708,7 @@
         </div>
     </div>
 
+    <!-- MODAL PENGEMBALIAN GLOVE -->
     <div id="kembaliModal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="border-color: #ffbc42;">
             <div class="modal-header">
@@ -635,7 +722,7 @@
             </div>
 
             <div id="kembaliInfoBox" style="display: none;">
-                <span class="abu" style="font-size:11px; text-transform:uppercase;">Detail Info Glove (Font Kecil):</span>
+                <span class="abu" style="font-size:11px; text-transform:uppercase;">Detail Info Glove:</span>
                 <p style="font-size: 12px; margin: 5px 0; color: #c9d1d9;">
                     Type: <span id="k_type" class="abu"></span> | 
                     Buyer: <span id="k_buyer" class="abu"></span> | 
@@ -683,7 +770,6 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
 
-        // Inisialisasi Database
         const database = firebase.database();
         const dbRef = database.ref('gloveKeeping'); 
         const dbKaryawanRef = database.ref('karyawan'); 
@@ -772,7 +858,7 @@
         document.getElementById('loginBtn').addEventListener('click', () => firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()));
         document.getElementById('logoutBtn').addEventListener('click', () => firebase.auth().signOut());
 
-        // LOGIKA CORE: GLOVE KEEPING MANAJEMEN
+        // LOGIKA GLOVE KEEPING
         const addModal = document.getElementById('addModal');
         const formGlove = document.getElementById('formGlove');
 
@@ -932,7 +1018,7 @@
             document.getElementById('resDuplikat').innerText = `${dPinjam} dipinjam / ${dCount} total glove`;
         }
 
-        // LOGIKA SUBSYSTEM: PEMINJAMAN & LOGISTIK DIGITAL
+        // LOGIKA PEMINJAMAN
         const pinjamModal = document.getElementById('pinjamModal');
         const kembaliModal = document.getElementById('kembaliModal');
         const formPinjam = document.getElementById('formPinjam');
