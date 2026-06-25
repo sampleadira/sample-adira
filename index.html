@@ -1040,18 +1040,44 @@
         document.getElementById('closePinjamModal').addEventListener('click', () => pinjamModal.style.display = 'none');
         document.getElementById('btnBatalPinjam').addEventListener('click', () => pinjamModal.style.display = 'none');
 
-        document.getElementById('p_idcard').addEventListener('input', (e) => {
-            const inputVal = e.target.value.trim();
-            if(inputVal.length >= 5) {
-                if(kantongRFID[inputVal]) {
-                    document.getElementById('p_nama').value = kantongRFID[inputVal];
-                    document.getElementById('p_rfid').focus();
-                } else {
-                    document.getElementById('p_nama').value = '';
-                    document.getElementById('p_nama').focus();
-                }
+        // --- CARA PERBAIKAN PADA JAVASCRIPT ---
+
+// Ganti event listener 'input' pada p_idcard yang lama dengan kode di bawah ini:
+document.getElementById('p_idcard').addEventListener('keypress', (e) => {
+    // Memastikan deteksi berjalan saat scanner mengirimkan sinyal 'Enter' (e.key === 'Enter')
+    if (e.key === 'Enter') {
+        e.preventDefault(); // Mencegah form tersubmit tidak sengaja saat di-scan
+        
+        const inputVal = e.target.value.trim();
+        if (inputVal.length > 0) {
+            if (kantongRFID[inputVal]) {
+                document.getElementById('p_nama').value = kantongRFID[inputVal];
+                document.getElementById('p_rfid').focus(); // Pindah ke scan glove setelah full terisi
+            } else {
+                document.getElementById('p_nama').value = '';
+                document.getElementById('p_nama').focus(); // Jika baru, isi nama manual
             }
-        });
+        }
+    }
+});
+
+// Menjaga jika scanner tidak mengirim sinyal Enter, kita gunakan debounce/delay tipis 
+// agar nomor RFID selesai diketik sepenuhnya sebelum fokus berpindah otomatis
+let scanTimeout;
+document.getElementById('p_idcard').addEventListener('input', (e) => {
+    clearTimeout(scanTimeout);
+    
+    scanTimeout = setTimeout(() => {
+        const inputVal = e.target.value.trim();
+        // Hanya memproses otomatis jika panjang karakter sudah stabil (misal minimal 8-10 digit standar RFID)
+        if (inputVal.length >= 8) { 
+            if (kantongRFID[inputVal]) {
+                document.getElementById('p_nama').value = kantongRFID[inputVal];
+                document.getElementById('p_rfid').focus();
+            }
+        }
+    }, 400); // Menunggu delay 400ms setelah ketikan terakhir selesai
+});
 
         document.getElementById('p_rfid').addEventListener('input', (e) => {
             const inputVal = e.target.value.trim();
